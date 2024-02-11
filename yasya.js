@@ -2602,24 +2602,36 @@ https://saweria.co/alvianto17\n`;
         if (!isRegistered) return reply(textRegister);
         if (isLimit(m.sender)) return;
         if (args.length == 0) return reply(`*Example:* .play Waiting for love`);
-        ichi.sendMessage(from, { text: mess.wait });
-        const yt = await yts(text);
-        const yt1 = await youtubedl(yt.all[0].url);
-        const url = await yt1.audio["128kbps"].download();
-        var caption = `Title : ${yt1.title}
+        ichi.sendMessage(m.chat, {
+          react: {
+            text: "⏳",
+            key: m.key,
+          },
+        });
+        try {
+          const yt = await yts(text);
+          const yt1 = await youtubedl(yt.all[0].url);
+          const url = await yt1.audio["128kbps"].download();
+          var caption = `Title : ${yt1.title}
 Format : MP3
 Resolusi : 128kbps`;
-        ichi.sendImage(m.chat, yt1.thumbnail, caption);
-        ichi.sendMessage(from, {
-          document: { url: url },
-          mimetype: "audio/mpeg",
-          fileName: `${yt1.title}.mp3`,
-        });
-        ichi.sendMessage(from, {
-          audio: { url: url },
-          mimetype: "audio/mpeg",
-          ptt: true,
-        });
+          ichi.sendImage(m.chat, yt1.thumbnail, caption);
+          await ichi.sendMessage(from, {
+            audio: { url: url },
+            mimetype: "audio/mpeg",
+            ptt: true,
+          });
+          await ichi.sendMessage(m.chat, {
+            react: {
+              text: "✅",
+              key: m.key,
+            },
+          });
+        } catch (err) {
+          reply(
+            "Jika ingin mendownload melalui link, gunakan .ytmp3 atau .ytmp4\n\n.play hanya menyediakan download lagu via judul"
+          );
+        }
         (await isPremium) ? isPremium : await limitAdd(m.sender);
         break;
       case "ytmp3":
