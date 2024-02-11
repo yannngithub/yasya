@@ -813,29 +813,17 @@ NOTE :\n1. Untuk menggunakan bot kirim .help\n2. Untuk cek limit kirim .ceklimit
     });
 
     //ANTI-SPAM BY ITALU
-    /*if (isCmd && isFiltered(from) && !isGroup) {
-      const ff = ichi.sendMessage(from, {
-        text: `Maaf @${
-          m.sender.split("@")[0]
-        } ...kamu hanya diijinkan mengirimkan perintah 3 detik sekali`,
-        contextInfo: {
-          mentionedJid: [m.sender],
-        },
-      });
-      return reply(ff);
-    }
-
-    if (isCmd && isFiltered(from) && isGroup) {
-      const ff1 = ichi.sendMessage(from, {
-        text: `Maaf @${
-          m.sender.split("@")[0]
-        } ...kamu hanya diijinkan mengirimkan perintah 3 detik sekali`,
-        contextInfo: {
-          mentionedJid: [m.sender],
-        },
-      });
-      return reply(ff1);
-    }*/
+    // if (isCmd && isFiltered(from) && !isGroup) {
+    //   const ff = ichi.sendMessage(from, {
+    //     text: `Maaf @${
+    //       m.sender.split("@")[0]
+    //     } ...kamu hanya diijinkan mengirimkan perintah 3 detik sekali`,
+    //     contextInfo: {
+    //       mentionedJid: [m.sender],
+    //     },
+    //   });
+    //   return reply(ff);
+    // }
 
     // Premium Check
     _prem.expiredCheck(ichi, hasilquery_premium);
@@ -1206,6 +1194,7 @@ https://saweria.co/alvianto17\n\n\n
 ╚════════
 ╔════════
 ╠═ *INFORMATION MENU*
+╠ .ai
 ╠ .jadwalsholat
 ╠ .gempa
 ╠ .gempadirasakan
