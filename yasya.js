@@ -2633,18 +2633,17 @@ Resolusi : 128kbps`;
           if (!isUrl(q)) return m.reply("Link Invalid ❎");
           if (!q.includes("youtube") / "youtu.be")
             return m.reply("Link Invalid ❎");
-          await m.reply(mess.wait);
-          let media = await ytDonlodMp3(text);
-          //if (media.filesize >= 50000) return m.reply(`File Melebihi Batas Dari 50MB Silahkan Download Sendiri :\n\nSize  File: ${media.filesizeF}\n`+media.dl_link)
-          var caption = `Title : ${media.title}
+          ichi.sendMessage(from, { text: mess.wait });
+          const yt1 = await youtubedl(text);
+          const url = await yt1.audio["128kbps"].download();
+          var caption = `Title : ${yt1.title}
 Format : MP3
-Resolusi : 128kbps
-Url : ${text}`;
-          ichi.sendImage(m.chat, media.thumb, caption);
+Resolusi : 128kbps`;
+          ichi.sendImage(m.chat, yt1.thumbnail, caption);
           ichi.sendMessage(from, {
-            document: { url: media.url },
+            document: { url: url },
             mimetype: "audio/mpeg",
-            fileName: `${media.title}.mp3`,
+            fileName: `${yt1.title}.mp3`,
           });
         }
         (await isPremium) ? isPremium : limitAdd(m.sender);
