@@ -1,11 +1,4 @@
-﻿/**
- * Made By Fandyyy 🕴️
- * Subscribe FBOTZ YT
- * Follow https://instagram.com/_nzrlafndi
- * Follow https://github.com/FBOTZ-YT
- */
-//process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
-require("./settings.js");
+﻿require("./settings.js");
 const makeWASocket = require("@adiwajshing/baileys").default;
 const {
   useMultiFileAuthState,
