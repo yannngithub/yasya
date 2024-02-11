@@ -119,16 +119,6 @@ const checkRegisteredUser = async (sender2) => {
   return status;
 };
 
-// const checkRegisteredUser = (sender2) => {
-//   let status = false;
-//   Object.keys(readlimit).forEach((i) => {
-//     if (readlimit[i].id === sender2) {
-//       status = true;
-//     }
-//   });
-//   return status;
-// };
-
 const checkBannedUser = async (sender2) => {
   let status = false;
   const result = await new Promise((resolve, reject) => {
