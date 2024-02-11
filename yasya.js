@@ -2660,19 +2660,6 @@ Resolusi : 128kbps`;
         }
         (await isPremium) ? isPremium : limitAdd(m.sender);
         break;
-      /*if (!q) return m.reply(`Gunakan Format : ${command} linknya`)
-  if (!isUrl(q)) return m.reply('Link Invalid ❎')
-  if (!q.includes('youtube')/('youtu.be')) return m.reply('Link Invalid ❎')
-   await m.reply(mess.wait)
-    let media = await getAudioWithTubeMp3(text)
-    await yts(text)
-      .then(yut => {
-        capt = `Title : ${yut.all[0].title}
-Format : Mp3
-Duration : ${yut.all[0].timestamp}`
-       ichi.sendImage(m.chat, yut.all[0].thumbnail, capt)        
-  ichi.sendMessage(from, { document: { url: media[3].url }, mimetype: 'audio/mpeg', fileName: `${yut.all[0].title}.mp3` }, { quoted: m })
-})*/
       case "ytmp4":
       case "ytvideo":
       case "ytv":
