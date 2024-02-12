@@ -2621,9 +2621,9 @@ Format : MP3
 Resolusi : 128kbps`;
           ichi.sendImage(m.chat, yt1.thumbnail, caption);
           await ichi.sendMessage(from, {
-            audio: { url: url },
+            document: { url: url },
             mimetype: "audio/mpeg",
-            ptt: true,
+            fileName: `${yt1.title}.mp3`,
           });
           await ichi.sendMessage(m.chat, {
             react: {
