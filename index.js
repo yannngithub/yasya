@@ -160,7 +160,8 @@ async function startIchigo() {
   });
 
   ichi.ev.on("creds.update", saveCreds);
-
+  ichi.public = true;
+  ichi.serializeM = (m) => smsg(ichi, m, store);
   //Connect To Command
   ichi.ev.on("messages.upsert", async (chatUpdate) => {
     //console.log(JSON.stringify(chatUpdate, undefined, 2))
@@ -226,9 +227,6 @@ async function startIchigo() {
     }
     return;
   });
-
-  ichi.public = true;
-  ichi.serializeM = (m) => smsg(ichi, m, store);
 
   ichi.decodeJid = (jid) => {
     if (!jid) return jid;
