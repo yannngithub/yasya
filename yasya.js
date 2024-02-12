@@ -56,7 +56,13 @@ var lolapi = lolhuman[Math.floor(Math.random() * lolhuman.length)];
 
 //Lib
 let _prem = require("./lib/premium");
-let { wikimedia, sfile, mediafireDl, whois } = require("./lib/scraper");
+let {
+  wikimedia,
+  sfile,
+  mediafireDl,
+  whois,
+  instagramstalk,
+} = require("./lib/scraper");
 let { TelegraPh, webp2mp4File } = require("./lib/uploader");
 let {
   /*smsg,*/
@@ -1136,12 +1142,6 @@ https://saweria.co/alvianto17\n\n\n
       case "help":
         if (isBanned) return reply(messs.banned);
         if (!isRegistered) return reply(textRegister);
-        // ╔════════
-        // ╠═ *STALKER MENU*
-        // ╠ .igstalk -
-        // ╠ .tiktokstalk -
-        // ╠ .githubstalk -
-        // ╚════════
         Object.keys(hasilquery_registrasi).forEach((user) => {
           if (hasilquery_registrasi[user].phone_number === m.sender) {
             let limitCountss =
@@ -1195,35 +1195,8 @@ https://saweria.co/alvianto17\n\n\n
 ╠ .buylimit
 ╚════════
 ╔════════
-╠══ *OWNER MENU*
-╠ .chatuser
-╠ .bc
-╠ .bcgc
-╠ .bcdonate
-╠ .bcgcdonate
-╠ .join
-╠ .leave
-╠ .block
-╠ .unblock
-╠ .blocklist
-╠ .totalblock
-╠ .ban
-╠ .unban
-╠ .listban
-╠ .premium
-╠ .unpremium
-╠ .listpremium
-╠ .listgrupbot
-╠ .setppbot
-╠ .self
-╠ .public
-╠ .resetlimit
-╠ .restartbot
-╠ .speedtest
-╠ .listpengguna
-╠ .listbanned
-╠ .ip
-╠ .cekresi
+╠═ *STALKER MENU*
+╠ .igstalk
 ╚════════
 ╔════════
 ╠══ *GROUP MENU*
@@ -1256,6 +1229,37 @@ https://saweria.co/alvianto17\n\n\n
 ╠ .togif
 ╠ .tourl
 ╠ .removebg
+╚════════
+╔════════
+╠══ *OWNER MENU*
+╠ .chatuser
+╠ .bc
+╠ .bcgc
+╠ .bcdonate
+╠ .bcgcdonate
+╠ .join
+╠ .leave
+╠ .block
+╠ .unblock
+╠ .blocklist
+╠ .totalblock
+╠ .ban
+╠ .unban
+╠ .listban
+╠ .premium
+╠ .unpremium
+╠ .listpremium
+╠ .listgrupbot
+╠ .setppbot
+╠ .self
+╠ .public
+╠ .resetlimit
+╠ .restartbot
+╠ .speedtest
+╠ .listpengguna
+╠ .listbanned
+╠ .ip
+╠ .cekresi
 ╚════════`;
             ichi.sendMessage(from, { text: lzain });
           }
@@ -3570,51 +3574,55 @@ Ambarawa, Ambon, Amlapura, Amuntai, Argamakmur, ͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏
           }
         }
         break;
-      case "hooh":
+      case "igstalk":
+        if (isBanned) return reply(messs.banned);
+        if (!isRegistered) return reply(textRegister);
+        if (isLimit(m.sender)) return;
+        if (args.length == 0) return reply(`*Example:* .igstalk alvianto.17`);
+        ichi.sendMessage(m.chat, {
+          react: {
+            text: "⏳",
+            key: m.key,
+          },
+        });
+        try {
+          igresult = await instagramstalk(text);
+          console.log(igresult);
+          igtxt = `Username: ${text}\n`;
+          igtxt += `Fullname: ${igresult.data.fullname}\n`;
+          igtxt += `Bio: ${igresult.data.bio}\n`;
+          igtxt += `Followers: ${igresult.data.follower}\n`;
+          igtxt += `Following: ${igresult.data.following}\n`;
+          igtxt += `Post: ${igresult.data.timeline}\n`;
+          igtxt += `Professional: ${igresult.data.professional}\n`;
+          igtxt += `Business: ${igresult.data.business}\n`;
+          igtxt += `Verified? ${
+            igresult.data.verified
+              ? "Lah kok centang? Pasti akun artis😏"
+              : "Ngimpi Awokawokawok"
+          }\n\n`;
+          igtxt += `Link: https://www.instagram.com/${text}/?hl=id`;
+          imagestalk = await getBuffer(
+            igresult.profile_picture_hd
+              ? igresult.profile_picture_hd
+              : profile_picture_sd
+          );
+          await ichi.sendMessage(
+            from,
+            { image: imagestalk, caption: igtxt },
+            { quoted: m }
+          );
+          await ichi.sendMessage(m.chat, {
+            react: {
+              text: "✅",
+              key: m.key,
+            },
+          });
+        } catch (err) {
+          reply("Username tidak ditemukan");
+        }
+        (await isPremium) ? isPremium : limitAdd(m.sender);
         break;
-      // case "igstalk":
-      //   if (isBanned) return reply(messs.banned);
-      //   let txtigs = `*EN : Register first*\n*ID : Daftar dulu*`;
-      //   let tomboligs = [
-      //     {
-      //       buttonId: `.donasi`,
-      //       buttonText: { displayText: "Donate" },
-      //       type: 1,
-      //     },
-      //     {
-      //       buttonId: `.register`,
-      //       buttonText: { displayText: "Register" },
-      //       type: 1,
-      //     },
-      //   ];
-      //   if (!isRegistered)
-      //     return ichi.sendButtonText(m.chat, tomboligs, txtigs, "YaSya Bot", m);
-      //   if (isLimit(m.sender)) return;
-      //   if (args.length == 0) return reply(`*Example:* .igstalk alvianto.17`);
-      //   m.reply(mess.wait);
-      //   igresult = await instagramstalk(text);
-      //   igtxt = `Username: ${text}\n`;
-      //   igtxt += `Fullname: ${igresult.data.fullname}\n`;
-      //   igtxt += `Bio: ${igresult.data.bio}\n`;
-      //   igtxt += `Followers: ${igresult.data.follower}\n`;
-      //   igtxt += `Following: ${igresult.data.following}\n`;
-      //   igtxt += `Post: ${igresult.data.timeline}\n`;
-      //   igtxt += `Professional: ${igresult.data.professional}\n`;
-      //   igtxt += `Business: ${igresult.data.business}\n`;
-      //   igtxt += `Verified? ${
-      //     igresult.data.verified
-      //       ? "Lah kok centang? Pasti akun artis😏"
-      //       : "Ngimpi Awokawokawok"
-      //   }\n\n`;
-      //   igtxt += `Link: https://www.instagram.com/${text}/?hl=id`;
-      //   imagestalk = await getBuffer(igresult.profile[0].url);
-      //   ichi.sendMessage(
-      //     from,
-      //     { image: imagestalk, caption: igtxt },
-      //     { quoted: m }
-      //   );
-      //   (await isPremium) ? isPremium : limitAdd(m.sender);
-      //   break;
       // case "tiktokstalk":
       //   if (isBanned) return reply(messs.banned);
       //   if (!isRegistered)
