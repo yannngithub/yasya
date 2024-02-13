@@ -283,9 +283,9 @@ module.exports = ichi = async (ichi, m, chatUpdate, store) => {
     //var prefix = /^[./!#]/.test(body) ? body.match(/^[./!#]/gi) : ".";
     var budy =
       m.mtype === "conversation"
-        ? mek.message.conversation
+        ? m.message.conversation
         : m.mtype === "extendedTextMessage"
-        ? mek.message.extendedTextMessage.text
+        ? m.message.extendedTextMessage.text
         : "";
     const isCmd = body.startsWith(prefix);
     const command = body.slice(1).trim().split(/ +/).shift().toLowerCase();
@@ -2407,7 +2407,12 @@ https://saweria.co/alvianto17\n`;
           if (!quoted) throw m.reply("Reply Image");
           if (!/webp/.test(mime))
             throw m.reply(`balas stiker dengan caption *${"." + command}*`);
-          m.reply(mess.wait);
+          ichi.sendMessage(m.chat, {
+            react: {
+              text: "⏳",
+              key: m.key,
+            },
+          });
           hmmm = (await "./trash/tomp4-") + getRandom("");
           let media = await ichi.downloadAndSaveMediaMessage(quoted, hmmm);
           let webpToMp4 = await webp2mp4File(media);
@@ -2443,7 +2448,12 @@ https://saweria.co/alvianto17\n`;
                 prefix + command
               }`
             );
-          m.reply(mess.wait);
+          ichi.sendMessage(m.chat, {
+            react: {
+              text: "⏳",
+              key: m.key,
+            },
+          });
           let media = await quoted.download();
           let audio = await toAudio(media, "mp4");
           ichi.sendMessage(
@@ -2477,7 +2487,12 @@ https://saweria.co/alvianto17\n`;
                 prefix + command
               }`
             );
-          m.reply(mess.wait);
+          ichi.sendMessage(m.chat, {
+            react: {
+              text: "⏳",
+              key: m.key,
+            },
+          });
           let media = await quoted.download();
           let audio = await toAudio(media, "mp4");
           ichi.sendMessage(
@@ -2511,7 +2526,12 @@ https://saweria.co/alvianto17\n`;
                 prefix + command
               }`
             );
-          m.reply(mess.wait);
+          ichi.sendMessage(m.chat, {
+            react: {
+              text: "⏳",
+              key: m.key,
+            },
+          });
           let media = await quoted.download();
           let audio = await toPTT(media, "mp4");
           ichi.sendMessage(
@@ -2529,7 +2549,12 @@ https://saweria.co/alvianto17\n`;
           if (isLimit(m.sender)) return;
           if (!/webp/.test(mime))
             return m.reply(`Balas sticker dengan caption *${"." + command}*`);
-          m.reply(mess.wait);
+          ichi.sendMessage(m.chat, {
+            react: {
+              text: "⏳",
+              key: m.key,
+            },
+          });
           hmmm = (await "./trash/togif-") + getRandom("");
           let media = await ichi.downloadAndSaveMediaMessage(quoted, hmmm);
           let webpToMp4 = await webp2mp4File(media);
@@ -2553,7 +2578,12 @@ https://saweria.co/alvianto17\n`;
           if (isBanned) return reply(messs.banned);
           if (!isRegistered) return reply(textRegister);
           if (isLimit(m.sender)) return;
-          m.reply(mess.wait);
+          ichi.sendMessage(m.chat, {
+            react: {
+              text: "⏳",
+              key: m.key,
+            },
+          });
           if (/image/.test(mime)) {
             hmm = (await "./trash/tourlimg-") + getRandom("");
             let media = await ichi.downloadAndSaveMediaMessage(quoted, hmm);
@@ -2649,7 +2679,12 @@ Resolusi : 128kbps`;
           if (!isUrl(q)) return m.reply("Link Invalid ❎");
           if (!q.includes("youtube") / "youtu.be")
             return m.reply("Link Invalid ❎");
-          ichi.sendMessage(from, { text: mess.wait });
+          ichi.sendMessage(m.chat, {
+            react: {
+              text: "⏳",
+              key: m.key,
+            },
+          });
           const yt1 = await youtubedl(text);
           const url = await yt1.audio["128kbps"].download();
           var caption = `Title : ${yt1.title}
@@ -2675,7 +2710,12 @@ Resolusi : 128kbps`;
           if (!isUrl(q)) return m.reply("Link Invalid ❎");
           if (!q.includes("youtube") / "youtu.be")
             return m.reply("Link Invalid ❎");
-          await m.reply(mess.wait);
+          ichi.sendMessage(m.chat, {
+            react: {
+              text: "⏳",
+              key: m.key,
+            },
+          });
           const ytmp4 = await yts(text);
           const ytmp41 = await youtubedl(ytmp4.all[0].url);
           const urlmp4 = await ytmp41.video["360p"].download();
@@ -2704,7 +2744,12 @@ Resolusi : 360p`;
           if (isLimit(m.sender)) return;
           if (args.length == 0)
             return reply(`*Example:* .yts Waiting for love`);
-          m.reply(mess.wait);
+          ichi.sendMessage(m.chat, {
+            react: {
+              text: "⏳",
+              key: m.key,
+            },
+          });
           if (!text) return reply(`Example : ${"." + command} story wa anime`);
           let search = await yts(text);
           let teks =
@@ -2776,7 +2821,12 @@ Resolusi : 360p`;
             `*Example:* .instagram https://www.instagram.com/p/CYIjdyPvkpe/?igshid=YmMyMTA2M2Y= `
           );
         if (!q.includes("instagram")) return m.reply("Link Invalid");
-        m.reply(mess.wait);
+        ichi.sendMessage(m.chat, {
+          react: {
+            text: "⏳",
+            key: m.key,
+          },
+        });
         ig(text).then((res) => {
           const ig = res.data;
           for (let i of ig) {
@@ -2978,9 +3028,13 @@ Resolusi : 360p`;
             `*Example:* .twitter https://twitter.com/dekai23/status/1488600754256551941`
           );
         if (!q.includes("twitter")) return m.reply("Link Invalid");
-        m.reply(mess.wait);
+        ichi.sendMessage(m.chat, {
+          react: {
+            text: "⏳",
+            key: m.key,
+          },
+        });
         hx.twitter(text).then((result) => {
-          reply(mess.wait);
           ichi.sendMessage(from, {
             video: { url: `${result.HD}` },
             mimetype: "video/mp4",
@@ -3000,7 +3054,12 @@ Resolusi : 360p`;
             `*Example:* .fb https://www.facebook.com/groups/526925218448628/permalink/591475845326898/`
           );
         if (!q.includes("f")) return m.reply("Link Invalid");
-        m.reply(mess.wait);
+        ichi.sendMessage(m.chat, {
+          react: {
+            text: "⏳",
+            key: m.key,
+          },
+        });
         try {
           await facebook(text).then((result) => {
             ichi.sendMessage(from, {
@@ -3024,7 +3083,12 @@ Resolusi : 360p`;
         if (isLimit(m.sender)) return;
         if (!/image/.test(mime))
           throw m.reply(`Kirim/Reply Image Dengan Caption ${"." + command}`);
-        m.reply(mess.wait);
+        ichi.sendMessage(m.chat, {
+          react: {
+            text: "⏳",
+            key: m.key,
+          },
+        });
         try {
           hmm = (await "./trash/remini-") + getRandom("");
           let mee = await ichi.downloadAndSaveMediaMessage(quoted, hmm);
@@ -3051,8 +3115,13 @@ Resolusi : 360p`;
             `*Example:* .mediafire https://www.mediafire.com/file/t2hxyuz7vbwima1/example.txt/file`
           );
         if (!q.includes("mediafire")) return m.reply("Link Invalid");
+        ichi.sendMessage(m.chat, {
+          react: {
+            text: "⏳",
+            key: m.key,
+          },
+        });
         await mediafireDl(text).then((mediafire) => {
-          reply(mess.wait);
           if (mediafire.mime.includes("mp4")) {
             ichi.sendMessage(from, {
               video: { url: `${mediafire.link}` },
@@ -3179,7 +3248,12 @@ Resolusi : 360p`;
         if (args.length == 0)
           return reply(`*Example:* .sfile https://sfile.mobi/92vnBWC6bev`);
         if (!q.includes("sfile")) return m.reply("Link Invalid");
-        m.reply(mess.wait);
+        ichi.sendMessage(m.chat, {
+          react: {
+            text: "⏳",
+            key: m.key,
+          },
+        });
         await sfile(text).then((sfile) => {
           ichi.sendMessage(from, {
             video: { url: sfile.link },
@@ -3642,7 +3716,7 @@ Ambarawa, Ambon, Amlapura, Amuntai, Argamakmur, ͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏
       //   tttxt += `Bio: ${ttresult.description}`;
       //   imagestalk = await getBuffer(ttresult.pp_user);
       //   ichi.sendMessage(
-      //     from,
+      //     from,t
       //     { image: imagestalk, caption: tttxt },
       //     { quoted: m }
       //   );

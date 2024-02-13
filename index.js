@@ -104,64 +104,6 @@ async function startIchigo() {
 
   store.bind(ichi.ev);
 
-  //Connection Active
-  ichi.ev.on("connection.update", async (update) => {
-    const { connection, lastDisconnect } = update;
-    try {
-      if (
-        update.connection == "connecting" ||
-        update.receivedPendingNotifications == "false"
-      ) {
-        lolcatjs.fromString(`[Connecting]`);
-      }
-      if (
-        update.connection == "open" ||
-        update.receivedPendingNotifications == "true"
-      ) {
-        await db.getConnection((err, connection) => {
-          if (err) {
-            console.error("Error getting MySQL connection from pool:", err);
-            return;
-          }
-          console.log(`    Connected to MySQL\n`);
-          // Your MySQL queries or other database operations go here
-          // Releasing the connection back to the pool
-          connection.release();
-        });
-        lolcatjs.fromString(
-          `[Connected]\n` +
-            `  Username: ${ichi.user.name}\n   Id: ${ichi.user.id}`
-        );
-        ichi.sendMessage(gruplog, { text: "YaSya BOT telah aktif" });
-      }
-      if (connection === "close") {
-        let reason = new Boom(lastDisconnect?.error)?.output.statusCode;
-        if (reason === DisconnectReason.badSession) {
-          console.log(`Bad Session File, Please Delete Session and Scan Again`);
-        } else if (reason === DisconnectReason.connectionClosed) {
-          console.log("Connection closed, reconnecting....");
-          startIchigo();
-        } else if (reason === DisconnectReason.connectionLost) {
-          console.log("Connection Lost from Server, reconnecting...");
-          startIchigo();
-        } else if (reason === DisconnectReason.restartRequired) {
-          console.log("Restart Required, Restarting...");
-          startIchigo();
-        } else if (reason === DisconnectReason.loggedOut) {
-          console.log(`Device Logged Out, Please Scan Again And Run.`);
-        } else if (reason === DisconnectReason.timedOut) {
-          console.log("Connection TimedOut, Reconnecting...");
-          startIchigo();
-        } else ichi.end(`Unknown DisconnectReason: ${reason}|${connection}`);
-      }
-    } catch (err) {
-      console.log(util.format(err));
-    }
-  });
-
-  ichi.ev.on("creds.update", saveCreds);
-  ichi.public = true;
-  ichi.serializeM = (m) => smsg(ichi, m, store);
   //Connect To Command
   ichi.ev.on("messages.upsert", async (chatUpdate) => {
     //console.log(JSON.stringify(chatUpdate, undefined, 2))
@@ -227,6 +169,8 @@ async function startIchigo() {
     }
     return;
   });
+
+  ichi.ev.on("creds.update", saveCreds);
 
   ichi.decodeJid = (jid) => {
     if (!jid) return jid;
@@ -973,6 +917,64 @@ async function startIchigo() {
       data,
     };
   };
+  ichi.public = true;
+  ichi.serializeM = (m) => smsg(ichi, m, store);
+
+  //Connection Active
+  ichi.ev.on("connection.update", async (update) => {
+    const { connection, lastDisconnect } = update;
+    try {
+      if (
+        update.connection == "connecting" ||
+        update.receivedPendingNotifications == "false"
+      ) {
+        lolcatjs.fromString(`[Connecting]`);
+      }
+      if (
+        update.connection == "open" ||
+        update.receivedPendingNotifications == "true"
+      ) {
+        await db.getConnection((err, connection) => {
+          if (err) {
+            console.error("Error getting MySQL connection from pool:", err);
+            return;
+          }
+          console.log(`    Connected to MySQL\n`);
+          // Your MySQL queries or other database operations go here
+          // Releasing the connection back to the pool
+          connection.release();
+        });
+        lolcatjs.fromString(
+          `[Connected]\n` +
+            `  Username: ${ichi.user.name}\n   Id: ${ichi.user.id}`
+        );
+        ichi.sendMessage(gruplog, { text: "YaSya BOT telah aktif" });
+      }
+      if (connection === "close") {
+        let reason = new Boom(lastDisconnect?.error)?.output.statusCode;
+        if (reason === DisconnectReason.badSession) {
+          console.log(`Bad Session File, Please Delete Session and Scan Again`);
+        } else if (reason === DisconnectReason.connectionClosed) {
+          console.log("Connection closed, reconnecting....");
+          startIchigo();
+        } else if (reason === DisconnectReason.connectionLost) {
+          console.log("Connection Lost from Server, reconnecting...");
+          startIchigo();
+        } else if (reason === DisconnectReason.restartRequired) {
+          console.log("Restart Required, Restarting...");
+          startIchigo();
+        } else if (reason === DisconnectReason.loggedOut) {
+          console.log(`Device Logged Out, Please Scan Again And Run.`);
+        } else if (reason === DisconnectReason.timedOut) {
+          console.log("Connection TimedOut, Reconnecting...");
+          startIchigo();
+        } else ichi.end(`Unknown DisconnectReason: ${reason}|${connection}`);
+      }
+    } catch (err) {
+      console.log(util.format(err));
+    }
+  });
+
   return ichi;
 }
 
