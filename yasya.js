@@ -3661,7 +3661,6 @@ Ambarawa, Ambon, Amlapura, Amuntai, Argamakmur, ͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏
         });
         try {
           igresult = await instagramstalk(text);
-          console.log(igresult);
           igtxt = `Username: ${text}\n`;
           igtxt += `Fullname: ${igresult.data.fullname}\n`;
           igtxt += `Bio: ${igresult.data.bio}\n`;
