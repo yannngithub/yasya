@@ -283,12 +283,7 @@ module.exports = ichi = async (ichi, m, chatUpdate, store) => {
           m.text
         :*/ "";
     //var prefix = /^[./!#]/.test(body) ? body.match(/^[./!#]/gi) : ".";
-    var budy =
-      m.mtype === "conversation"
-        ? m.message.conversation
-        : m.mtype === "extendedTextMessage"
-        ? m.message.extendedTextMessage.text
-        : "";
+    var budy = typeof m.text == "string" ? m.text : "";
     const isCmd = body.startsWith(prefix);
     const command = body.slice(1).trim().split(/ +/).shift().toLowerCase();
     // var body =
@@ -427,6 +422,7 @@ module.exports = ichi = async (ichi, m, chatUpdate, store) => {
       Object.keys(hasilquery_group).forEach(async (i) => {
         if (hasilquery_group[i].group_id === m.chat) {
           if (hasilquery_group[i].autotiktok === 1) {
+            if (budy.startsWith(prefix)) return;
             if (budy.match(`tiktok.com`)) {
               ichi.sendMessage(m.chat, {
                 react: {
@@ -481,6 +477,7 @@ module.exports = ichi = async (ichi, m, chatUpdate, store) => {
       Object.keys(hasilquery_group).forEach(async (i) => {
         if (hasilquery_group[i].group_id === m.chat) {
           if (hasilquery_group[i].autoinstagram === 1) {
+            if (budy.startsWith(prefix)) return;
             if (budy.match(`instagram.com`)) {
               ichi.sendMessage(m.chat, {
                 react: {
@@ -531,6 +528,7 @@ module.exports = ichi = async (ichi, m, chatUpdate, store) => {
       Object.keys(hasilquery_group).forEach(async (i) => {
         if (hasilquery_group[i].group_id === m.chat) {
           if (hasilquery_group[i].autofacebook === 1) {
+            if (budy.startsWith(prefix)) return;
             if (budy.match(`fb.watch` || `facebook.com`)) {
               ichi.sendMessage(m.chat, {
                 react: {
