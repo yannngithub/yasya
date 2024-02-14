@@ -41,11 +41,22 @@ let { promisify } = require("util");
 let exec = promisify(cp.exec).bind(cp);
 
 sender2 = m.sender;
-global.gruplog = "120363198930918529@g.us";
 
 //API WEBSITE
 let lolhuman = ["AryaXyz"];
 var lolapi = lolhuman[Math.floor(Math.random() * lolhuman.length)];
+
+//Message Nya Ubah Disini
+global.mess = {
+  admin: "Kamu bukan Admin Grup!",
+  botAdmin: "BOT bukan Admin!",
+  botOwner: "Hanya untuk OWNER BOT!",
+  group: "Hanya untuk Grup!",
+  private: "Hanya untuk Private Chat",
+  premium: "Hanya untuk Member Premium!",
+  wait: "Loading...",
+  done: "Done!",
+};
 
 //Waktu
 // const time = moment().tz("Asia/Jakarta").format("HH:mm:ss");
@@ -807,6 +818,52 @@ NOTE :\n1. Untuk menggunakan bot kirim .help\n2. Untuk cek limit kirim .ceklimit
         };
       }
     });
+
+    //reply
+    async function replygcxeon(teks) {
+      if (typereply === "v1") {
+        m.reply(teks);
+      } else if (typereply === "v2") {
+        ichi.sendMessage(
+          m.chat,
+          {
+            contextInfo: {
+              externalAdReply: {
+                showAdAttribution: true,
+                title: "YaSya BOT",
+                body: "YaSya BOT1",
+                previewType: "PHOTO",
+                thumbnail: fs.readFileSync("./media/blankpp.png"),
+                sourceUrl: "https://chat.whatsapp.com/I9t1FLgLJCJ64F2JxQbQpA",
+              },
+            },
+            text: teks,
+          },
+          {
+            quoted: m,
+          }
+        );
+      } else if (typereply === "v3") {
+        ichi.sendMessage(
+          m.chat,
+          {
+            text: teks,
+            contextInfo: {
+              externalAdReply: {
+                showAdAttribution: true,
+                title: "YaSya BOT",
+                body: "YaSya BOT1",
+                thumbnail: fs.readFileSync("./media/blankpp.png"),
+                sourceUrl: websitex,
+                mediaType: 1,
+                renderLargerThumbnail: true,
+              },
+            },
+          },
+          { quoted: m }
+        );
+      }
+    }
 
     //ANTI-SPAM BY ITALU
     // if (isCmd && isFiltered(from) && !isGroup) {
@@ -3755,6 +3812,9 @@ Ambarawa, Ambon, Amlapura, Amuntai, Argamakmur, ͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏
       //   );
       //   (await isPremium) ? isPremium : limitAdd(m.sender);
       //   break;
+      case "hooh":
+        replygcxeon("test");
+        break;
       case "bot":
         reply("Apa? mau pakai bot? caranya kirim .help");
         break;
@@ -3816,14 +3876,14 @@ Ambarawa, Ambon, Amlapura, Amuntai, Argamakmur, ͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏
           reply(`Hai juga kak, mau pakai bot? caranya kirim .help`);
         }
         if (budy == `Asu`) {
-          buffer = fs.readFileSync(`./src/ngomongmoral.opus`);
+          buffer = fs.readFileSync(`./media/ngomongmoral.opus`);
           ichi.sendMessage(
             from,
             { audio: buffer, mimetype: "audio/mpeg", ptt: true },
             { quoted: m }
           );
           setTimeout(() => {
-            buffer2 = fs.readFileSync(`./src/ngomongsopan.opus`);
+            buffer2 = fs.readFileSync(`./media/ngomongsopan.opus`);
             ichi.sendMessage(
               from,
               { audio: buffer2, mimetype: "audio/mpeg", ptt: true },
@@ -3832,14 +3892,14 @@ Ambarawa, Ambon, Amlapura, Amuntai, Argamakmur, ͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏
           }, 6000);
         }
         if (budy == `asu`) {
-          buffer = fs.readFileSync(`./src/ngomongmoral.opus`);
+          buffer = fs.readFileSync(`./media/ngomongmoral.opus`);
           ichi.sendMessage(
             from,
             { audio: buffer, mimetype: "audio/mpeg", ptt: true },
             { quoted: m }
           );
           setTimeout(() => {
-            buffer2 = fs.readFileSync(`./src/ngomongsopan.opus`);
+            buffer2 = fs.readFileSync(`./media/ngomongsopan.opus`);
             ichi.sendMessage(
               from,
               { audio: buffer2, mimetype: "audio/mpeg", ptt: true },
@@ -3848,14 +3908,14 @@ Ambarawa, Ambon, Amlapura, Amuntai, Argamakmur, ͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏
           }, 6000);
         }
         if (budy == `Jancok`) {
-          buffer = fs.readFileSync(`./src/ngomongmoral.opus`);
+          buffer = fs.readFileSync(`./media/ngomongmoral.opus`);
           ichi.sendMessage(
             from,
             { audio: buffer, mimetype: "audio/mpeg", ptt: true },
             { quoted: m }
           );
           setTimeout(() => {
-            buffer2 = fs.readFileSync(`./src/ngomongsopan.opus`);
+            buffer2 = fs.readFileSync(`./media/ngomongsopan.opus`);
             ichi.sendMessage(
               from,
               { audio: buffer2, mimetype: "audio/mpeg", ptt: true },
@@ -3864,14 +3924,14 @@ Ambarawa, Ambon, Amlapura, Amuntai, Argamakmur, ͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏
           }, 6000);
         }
         if (budy == `jancok`) {
-          buffer = fs.readFileSync(`./src/ngomongmoral.opus`);
+          buffer = fs.readFileSync(`./media/ngomongmoral.opus`);
           ichi.sendMessage(
             from,
             { audio: buffer, mimetype: "audio/mpeg", ptt: true },
             { quoted: m }
           );
           setTimeout(() => {
-            buffer2 = fs.readFileSync(`./src/ngomongsopan.opus`);
+            buffer2 = fs.readFileSync(`./media/ngomongsopan.opus`);
             ichi.sendMessage(
               from,
               { audio: buffer2, mimetype: "audio/mpeg", ptt: true },
@@ -3880,14 +3940,14 @@ Ambarawa, Ambon, Amlapura, Amuntai, Argamakmur, ͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏
           }, 6000);
         }
         if (budy == `Kontol`) {
-          buffer = fs.readFileSync(`./src/ngomongmoral.opus`);
+          buffer = fs.readFileSync(`./media/ngomongmoral.opus`);
           ichi.sendMessage(
             from,
             { audio: buffer, mimetype: "audio/mpeg", ptt: true },
             { quoted: m }
           );
           setTimeout(() => {
-            buffer2 = fs.readFileSync(`./src/ngomongsopan.opus`);
+            buffer2 = fs.readFileSync(`./media/ngomongsopan.opus`);
             ichi.sendMessage(
               from,
               { audio: buffer2, mimetype: "audio/mpeg", ptt: true },
@@ -3896,14 +3956,14 @@ Ambarawa, Ambon, Amlapura, Amuntai, Argamakmur, ͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏
           }, 6000);
         }
         if (budy == `kontol`) {
-          buffer = fs.readFileSync(`./src/ngomongmoral.opus`);
+          buffer = fs.readFileSync(`./media/ngomongmoral.opus`);
           ichi.sendMessage(
             from,
             { audio: buffer, mimetype: "audio/mpeg", ptt: true },
             { quoted: m }
           );
           setTimeout(() => {
-            buffer2 = fs.readFileSync(`./src/ngomongsopan.opus`);
+            buffer2 = fs.readFileSync(`./media/ngomongsopan.opus`);
             ichi.sendMessage(
               from,
               { audio: buffer2, mimetype: "audio/mpeg", ptt: true },
@@ -3912,14 +3972,14 @@ Ambarawa, Ambon, Amlapura, Amuntai, Argamakmur, ͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏
           }, 6000);
         }
         if (budy == `Memek`) {
-          buffer = fs.readFileSync(`./src/ngomongmoral.opus`);
+          buffer = fs.readFileSync(`./media/ngomongmoral.opus`);
           ichi.sendMessage(
             from,
             { audio: buffer, mimetype: "audio/mpeg", ptt: true },
             { quoted: m }
           );
           setTimeout(() => {
-            buffer2 = fs.readFileSync(`./src/ngomongsopan.opus`);
+            buffer2 = fs.readFileSync(`./media/ngomongsopan.opus`);
             ichi.sendMessage(
               from,
               { audio: buffer2, mimetype: "audio/mpeg", ptt: true },
@@ -3928,14 +3988,14 @@ Ambarawa, Ambon, Amlapura, Amuntai, Argamakmur, ͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏
           }, 6000);
         }
         if (budy == `memek`) {
-          buffer = fs.readFileSync(`./src/ngomongmoral.opus`);
+          buffer = fs.readFileSync(`./media/ngomongmoral.opus`);
           ichi.sendMessage(
             from,
             { audio: buffer, mimetype: "audio/mpeg", ptt: true },
             { quoted: m }
           );
           setTimeout(() => {
-            buffer2 = fs.readFileSync(`./src/ngomongsopan.opus`);
+            buffer2 = fs.readFileSync(`./media/ngomongsopan.opus`);
             ichi.sendMessage(
               from,
               { audio: buffer2, mimetype: "audio/mpeg", ptt: true },
@@ -3944,14 +4004,14 @@ Ambarawa, Ambon, Amlapura, Amuntai, Argamakmur, ͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏
           }, 6000);
         }
         if (budy == `ngontol`) {
-          buffer = fs.readFileSync(`./src/ngomongmoral.opus`);
+          buffer = fs.readFileSync(`./media/ngomongmoral.opus`);
           ichi.sendMessage(
             from,
             { audio: buffer, mimetype: "audio/mpeg", ptt: true },
             { quoted: m }
           );
           setTimeout(() => {
-            buffer2 = fs.readFileSync(`./src/ngomongsopan.opus`);
+            buffer2 = fs.readFileSync(`./media/ngomongsopan.opus`);
             ichi.sendMessage(
               from,
               { audio: buffer2, mimetype: "audio/mpeg", ptt: true },

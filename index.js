@@ -1,5 +1,4 @@
-﻿require("./settings.js");
-const makeWASocket = require("@adiwajshing/baileys").default;
+﻿const makeWASocket = require("@adiwajshing/baileys").default;
 const {
   useMultiFileAuthState,
   DisconnectReason,
@@ -46,6 +45,14 @@ const {
 } = require("./lib/myfunc.js");
 let { writeExif } = require("./lib/exif.js");
 
+//Ubah Disini
+global.ownerNumber = ["62895401223315", "6289506269853"];
+global.ownerName = "YaSya Bot";
+global.packname = "YaSya Bot";
+global.author = "+6283119226742";
+global.prefa = ["!", ".", "#", "/"]; //Ilangin Prefix Yang '' Kalau Gamau No Prefix
+global.gruplog = "120363198930918529@g.us";
+
 const store = makeInMemoryStore({
   logger: pino({ level: "fatal" }),
 });
@@ -67,18 +74,16 @@ global.readgroup = JSON.parse(readfilegroup);
 const readfilepremium = fs.readFileSync("./database/premium.json");
 global.premium = JSON.parse(readfilepremium);
 
-global.gruplog = "120363198930918529@g.us";
-global.grupbot = "120363031779586280@g.us";
-
 //Starting In Console
 async function startIchigo() {
-  const { state, saveCreds } = await useMultiFileAuthState("waweb-session");
-  let ichi = await makeWASocket({
+  const { state, saveCreds } = await useMultiFileAuthState(
+    "./whatsapp-session"
+  );
+  let ichi = makeWASocket({
     logger: pino({ level: "fatal" }),
     printQRInTerminal: true,
-    browser: ["Ubuntu", "Chrome", ""],
+    browser: ["Linux", "Chrome", ""],
     syncFullHistory: true,
-    auth: state,
     patchMessageBeforeSending: (message) => {
       const requiresPatch = !!(
         message.buttonsMessage ||
@@ -100,9 +105,67 @@ async function startIchigo() {
       }
       return message;
     },
+    auth: state,
   });
 
   store.bind(ichi.ev);
+
+  //Connection Active
+  ichi.ev.on("connection.update", async (update) => {
+    const { connection, lastDisconnect } = update;
+    try {
+      if (
+        update.connection == "connecting" ||
+        update.receivedPendingNotifications == "false"
+      ) {
+        lolcatjs.fromString(`[Connecting]`);
+      }
+      if (
+        update.connection == "open" ||
+        update.receivedPendingNotifications == "true"
+      ) {
+        await db.getConnection((err, connection) => {
+          if (err) {
+            console.error("Error getting MySQL connection from pool:", err);
+            return;
+          }
+          console.log(`    Connected to MySQL\n`);
+          // Your MySQL queries or other database operations go here
+          // Releasing the connection back to the pool
+          connection.release();
+        });
+        lolcatjs.fromString(
+          `[Connected]\n` +
+            `  Username: ${ichi.user.name}\n   Id: ${ichi.user.id}`
+        );
+        ichi.sendMessage(gruplog, { text: "YaSya BOT telah aktif" });
+      }
+      if (connection === "close") {
+        let reason = new Boom(lastDisconnect?.error)?.output.statusCode;
+        if (reason === DisconnectReason.badSession) {
+          console.log(`Bad Session File, Please Delete Session and Scan Again`);
+        } else if (reason === DisconnectReason.connectionClosed) {
+          console.log("Connection closed, reconnecting....");
+          startIchigo();
+        } else if (reason === DisconnectReason.connectionLost) {
+          console.log("Connection Lost from Server, reconnecting...");
+          startIchigo();
+        } else if (reason === DisconnectReason.restartRequired) {
+          console.log("Restart Required, Restarting...");
+          startIchigo();
+        } else if (reason === DisconnectReason.loggedOut) {
+          console.log(`Device Logged Out, Please Scan Again And Run.`);
+        } else if (reason === DisconnectReason.timedOut) {
+          console.log("Connection TimedOut, Reconnecting...");
+          startIchigo();
+        } else ichi.end(`Unknown DisconnectReason: ${reason}|${connection}`);
+      }
+    } catch (err) {
+      console.log(util.format(err));
+    }
+  });
+
+  ichi.ev.on("creds.update", saveCreds);
 
   //Connect To Command
   ichi.ev.on("messages.upsert", async (chatUpdate) => {
@@ -169,8 +232,6 @@ async function startIchigo() {
     }
     return;
   });
-
-  ichi.ev.on("creds.update", saveCreds);
 
   ichi.decodeJid = (jid) => {
     if (!jid) return jid;
@@ -245,6 +306,9 @@ async function startIchigo() {
     });
     return status;
   };
+
+  ichi.public = true;
+  ichi.serializeM = (m) => smsg(ichi, m, store);
 
   /**
    *
@@ -917,64 +981,6 @@ async function startIchigo() {
       data,
     };
   };
-  ichi.public = true;
-  ichi.serializeM = (m) => smsg(ichi, m, store);
-
-  //Connection Active
-  ichi.ev.on("connection.update", async (update) => {
-    const { connection, lastDisconnect } = update;
-    try {
-      if (
-        update.connection == "connecting" ||
-        update.receivedPendingNotifications == "false"
-      ) {
-        lolcatjs.fromString(`[Connecting]`);
-      }
-      if (
-        update.connection == "open" ||
-        update.receivedPendingNotifications == "true"
-      ) {
-        await db.getConnection((err, connection) => {
-          if (err) {
-            console.error("Error getting MySQL connection from pool:", err);
-            return;
-          }
-          console.log(`    Connected to MySQL\n`);
-          // Your MySQL queries or other database operations go here
-          // Releasing the connection back to the pool
-          connection.release();
-        });
-        lolcatjs.fromString(
-          `[Connected]\n` +
-            `  Username: ${ichi.user.name}\n   Id: ${ichi.user.id}`
-        );
-        ichi.sendMessage(gruplog, { text: "YaSya BOT telah aktif" });
-      }
-      if (connection === "close") {
-        let reason = new Boom(lastDisconnect?.error)?.output.statusCode;
-        if (reason === DisconnectReason.badSession) {
-          console.log(`Bad Session File, Please Delete Session and Scan Again`);
-        } else if (reason === DisconnectReason.connectionClosed) {
-          console.log("Connection closed, reconnecting....");
-          startIchigo();
-        } else if (reason === DisconnectReason.connectionLost) {
-          console.log("Connection Lost from Server, reconnecting...");
-          startIchigo();
-        } else if (reason === DisconnectReason.restartRequired) {
-          console.log("Restart Required, Restarting...");
-          startIchigo();
-        } else if (reason === DisconnectReason.loggedOut) {
-          console.log(`Device Logged Out, Please Scan Again And Run.`);
-        } else if (reason === DisconnectReason.timedOut) {
-          console.log("Connection TimedOut, Reconnecting...");
-          startIchigo();
-        } else ichi.end(`Unknown DisconnectReason: ${reason}|${connection}`);
-      }
-    } catch (err) {
-      console.log(util.format(err));
-    }
-  });
-
   return ichi;
 }
 
