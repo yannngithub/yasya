@@ -1,13 +1,4 @@
-﻿/**
- * Made By Fandyyy 🕴️
- * Subscribe FBOTZ YT
- * Follow https://instagram.com/_nzrlafndi
- * Follow https://github.com/FBOTZ-YT
- */
-
-//Module
-require("./settings");
-const {
+﻿const {
   WA_DEFAULT_EPHEMERAL,
   // BufferJSON,
   // generateWAMessageFromContent,
