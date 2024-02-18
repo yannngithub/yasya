@@ -53,10 +53,6 @@ global.author = "+6283119226742";
 global.prefa = ["!", ".", "#", "/"]; //Ilangin Prefix Yang '' Kalau Gamau No Prefix
 global.gruplog = "120363198930918529@g.us";
 
-const store = makeInMemoryStore({
-  logger: pino({ level: "fatal" }),
-});
-
 global.db = mysql.createPool({
   host: "mikrotik.alvianto.biz.id",
   port: "1707",
@@ -76,6 +72,9 @@ global.premium = JSON.parse(readfilepremium);
 
 //Starting In Console
 async function startIchigo() {
+  const store = makeInMemoryStore({
+    logger: pino({ level: "fatal" }),
+  });
   const { state, saveCreds } = await useMultiFileAuthState(
     "./whatsapp-session"
   );
@@ -107,8 +106,6 @@ async function startIchigo() {
     },
     auth: state,
   });
-
-  store.bind(ichi.ev);
 
   //Connection Active
   ichi.ev.on("connection.update", async (update) => {
@@ -165,28 +162,8 @@ async function startIchigo() {
     }
   });
 
-  ichi.ev.on("creds.update", saveCreds);
-
-  //Connect To Command
-  ichi.ev.on("messages.upsert", async (chatUpdate) => {
-    //console.log(JSON.stringify(chatUpdate, undefined, 2))
-    try {
-      mek = chatUpdate.messages[0];
-      if (!mek.message) return;
-      mek.message =
-        Object.keys(mek.message)[0] === "ephemeralMessage"
-          ? mek.message.ephemeralMessage.message
-          : mek.message;
-      if (mek.key && mek.key.remoteJid === "status@broadcast") return;
-      if (!ichi.public && !mek.key.fromMe && chatUpdate.type === "notify")
-        return;
-      if (mek.key.id.startsWith("BAE5") && mek.key.id.length === 16) return;
-      m = smsg(ichi, mek, store);
-      require("./yasya.js")(ichi, m, chatUpdate, store);
-    } catch (err) {
-      console.log(util.format(err));
-    }
-  });
+  store.bind(ichi.ev);
+  ichi.ev.on("messages.upsert", () => {});
 
   ichi.ev.on("messages.upsert", async (upsert) => {
     //console.log(JSON.stringify(upsert, '', 2))
@@ -232,6 +209,28 @@ async function startIchigo() {
     }
     return;
   });
+
+  //Connect To Command
+  ichi.ev.on("messages.upsert", async (chatUpdate) => {
+    //console.log(JSON.stringify(chatUpdate, undefined, 2))
+    mek = chatUpdate.messages[0];
+    if (!mek.message) return;
+    mek.message =
+      Object.keys(mek.message)[0] === "ephemeralMessage"
+        ? mek.message.ephemeralMessage.message
+        : mek.message;
+    if (mek.key && mek.key.remoteJid === "status@broadcast") return;
+    if (!ichi.public && !mek.key.fromMe && chatUpdate.type === "notify") return;
+    if (mek.key.id.startsWith("BAE5") && mek.key.id.length === 16) return;
+    m = smsg(ichi, mek, store);
+    require("./yasya")(ichi, m, chatUpdate, store);
+    // try {
+    // } catch (err) {
+    //   console.log(util.format(err));
+    // }
+  });
+
+  ichi.ev.on("creds.update", saveCreds);
 
   ichi.decodeJid = (jid) => {
     if (!jid) return jid;

@@ -382,11 +382,11 @@ module.exports = ichi = async (ichi, m, chatUpdate, store) => {
     } catch (err) {
       ichi.sendMessage(gruplog, {
         text:
-          `*[ ERROR LOG ]*\n\n${moment()
+          `*[ ERROR LOG YASYA.JS ]*\n\n${moment()
             .tz("Asia/Jakarta")
             .format("HH:mm:ss DD/MM/YYYY")}\nError di bagian ${__filename}\n${
             budy || m.mtype
-          }\n` + util.format(err),
+          } FROM ${m.sender.split("@")[0]}\n` + util.format(err),
       });
     }
 
@@ -423,7 +423,7 @@ module.exports = ichi = async (ichi, m, chatUpdate, store) => {
         if (hasilquery_group[i].group_id === m.chat) {
           if (hasilquery_group[i].autotiktok === 1) {
             if (budy.startsWith(prefix)) return;
-            if (budy.match(`tiktok.com`)) {
+            if (budy.match("tiktok.com" && "vt.tiktok")) {
               ichi.sendMessage(m.chat, {
                 react: {
                   text: "⏳",
@@ -529,7 +529,7 @@ module.exports = ichi = async (ichi, m, chatUpdate, store) => {
         if (hasilquery_group[i].group_id === m.chat) {
           if (hasilquery_group[i].autofacebook === 1) {
             if (budy.startsWith(prefix)) return;
-            if (budy.match(`fb.watch` || `facebook.com`)) {
+            if (budy.match("fb.watch" && "facebook.com")) {
               ichi.sendMessage(m.chat, {
                 react: {
                   text: "⏳",
@@ -616,29 +616,14 @@ module.exports = ichi = async (ichi, m, chatUpdate, store) => {
               reply(`*「 LIMIT COUNT 」*\n
 Sisa limit anda : ${limitCounts}
 
-NOTE :\n1. Untuk menggunakan bot kirim .help\n2. Untuk cek limit kirim .ceklimit\n3. Pengen limitnya unlimited?, Bisa kirim .buypremium`);
+NOTE :\n1. Untuk menggunakan bot kirim .menu\n2. Untuk cek limit kirim .ceklimit\n3. Pengen limitnya unlimited?, Bisa kirim .buypremium`);
               found = true;
             }
           }
           if (found === false) {
-            const dataToInsert = {
-              phone_number: sender2,
-              user_name: name,
-              user_status: "Member",
-              date_reg: moment()
-                .tz("Asia/Jakarta")
-                .format("HH:mm:ss DD/MM/YYYY"),
-              limit_user: "0",
-            };
-
-            // SQL query to insert data, excluding the 'id' field
-            const insertQuery = "INSERT INTO tbl_registrasi SET ?";
-            db.query(insertQuery, dataToInsert, (err, results) => {
-              if (err) {
-                console.error("Error inserting data:", err);
-                return;
-              }
-            });
+            reply(
+              "Nomor kamu belum terdaftar ke Database BOT.\nSilahkan kirim pesan ke bot *.daftar namamu*\n\nContoh: .daftar YaSya"
+            );
             // let pushlimit = {
             //   id: m.sender,
             //   username: pushname,
@@ -690,9 +675,6 @@ NOTE :\n1. Untuk menggunakan bot kirim .help\n2. Untuk cek limit kirim .ceklimit
         //     return;
         //   }
         // });
-        reply(
-          "Nomor kamu belum terdaftar ke Database BOT.\nSilahkan kirim pesan ke bot *.daftar namamu*\n\nContoh: .daftar YaSya"
-        );
         return false;
       }
     };
@@ -946,7 +928,24 @@ NOTE :\n1. Untuk menggunakan bot kirim .help\n2. Untuk cek limit kirim .ceklimit
           return reply(
             "Namamu masih kosong, silahkan ulangi pendaftaran dengan kirim chat *.daftar namamu*\n\nContoh: .daftar YaSya"
           );
-        if (isLimit(m.sender)) return;
+        const insertdata = {
+          phone_number: m.sender,
+          user_name: text,
+          user_status: "Member",
+          date_reg: moment().tz("Asia/Jakarta").format("HH:mm:ss DD/MM/YYYY"),
+          limit_user: "0",
+        };
+
+        // SQL query to insert data, excluding the 'id' field
+        const inserttable = "INSERT INTO tbl_registrasi SET ?";
+        db.query(inserttable, insertdata, (err, results) => {
+          if (err) {
+            reply(
+              "Error saat memasukkan data ke Database, Pastikan namamu huruf semua"
+            );
+            return;
+          }
+        });
         reply(`Kamu telah terdaftar di Database dengan Nama: ${text}`);
         setTimeout(() => {
           checkLimit(m.sender, text);
@@ -1200,7 +1199,7 @@ https://saweria.co/alvianto17\n\n\n
 ╰───────────⊱
 ╭──❲ INFO BOT ❳
 │  Nama BOT: YaSya BOT
-│  Owner: YaSya
+│  Owner: Alvianto
 │  Server Region: Indonesia
 │  OS: ${os.version()} ${os.arch()}
 │  Uptime BOT: ${runtime(process.uptime())}
@@ -2311,12 +2310,13 @@ https://saweria.co/alvianto17\n`;
           } catch (err) {
             ichi.sendMessage(gruplog, {
               text:
-                `*[ ERROR LOG ]*\n\n${moment()
+                `*[ ERROR LOG YASYA.JS ]*\n\n${moment()
                   .tz("Asia/Jakarta")
                   .format(
                     "HH:mm:ss DD/MM/YYYY"
-                  )}\nError di bagian ${__filename}\n${budy || m.mtype}\n` +
-                util.format(err),
+                  )}\nError di bagian ${__filename}\n${budy || m.mtype} FROM ${
+                  m.sender.split("@")[0]
+                }\n` + util.format(err),
             });
             m.reply(util.format(err));
             await fs.unlinkSync(localFile);
@@ -2731,17 +2731,22 @@ Resolusi : 128kbps`;
               key: m.key,
             },
           });
-          const yt1 = await youtubedl(text);
-          const url = await yt1.audio["128kbps"].download();
-          var caption = `Title : ${yt1.title}
+          try {
+            const yt1 = await youtubedl(text);
+            console.log(yt1);
+            const url = await yt1.audio["128kbps"].download();
+            var caption = `Title : ${yt1.title}
 Format : MP3
 Resolusi : 128kbps`;
-          ichi.sendImage(m.chat, yt1.thumbnail, caption);
-          ichi.sendMessage(from, {
-            document: { url: url },
-            mimetype: "audio/mpeg",
-            fileName: `${yt1.title}.mp3`,
-          });
+            ichi.sendImage(m.chat, yt1.thumbnail, caption);
+            ichi.sendMessage(from, {
+              document: { url: url },
+              mimetype: "audio/mpeg",
+              fileName: `${yt1.title}.mp3`,
+            });
+          } catch (err) {
+            m.reply("Gagal saat mendownload musik...");
+          }
         }
         (await isPremium) ? isPremium : limitAdd(m.sender);
         break;
@@ -2762,22 +2767,26 @@ Resolusi : 128kbps`;
               key: m.key,
             },
           });
-          const ytmp4 = await yts(text);
-          const ytmp41 = await youtubedl(ytmp4.all[0].url);
-          const urlmp4 = await ytmp41.video["360p"].download();
-          var caption = `Judul : ${ytmp41.title}
+          try {
+            const ytmp4 = await yts(text);
+            const ytmp41 = await youtubedl(ytmp4.all[0].url);
+            const urlmp4 = await ytmp41.video["360p"].download();
+            var caption = `Judul : ${ytmp41.title}
 Format : Mp4
 Resolusi : 360p`;
-          ichi.sendImage(m.chat, ytmp41.thumbnail, caption);
-          ichi.sendMessage(
-            m.chat,
-            {
-              video: { url: urlmp4 },
-              mimetype: "video/mp4",
-              caption: caption,
-            },
-            { quoted: m }
-          );
+            ichi.sendImage(m.chat, ytmp41.thumbnail, caption);
+            ichi.sendMessage(
+              m.chat,
+              {
+                video: { url: urlmp4 },
+                mimetype: "video/mp4",
+                caption: caption,
+              },
+              { quoted: m }
+            );
+          } catch (err) {
+            m.reply("Gagal saat mendownload video...");
+          }
         }
         (await isPremium) ? isPremium : limitAdd(m.sender);
         break;
@@ -2873,27 +2882,31 @@ Resolusi : 360p`;
             key: m.key,
           },
         });
-        ig(text).then((res) => {
-          const ig = res.data;
-          for (let i of ig) {
-            if (i.type.includes("video")) {
-              ichi.sendMessage(
-                from,
-                {
-                  video: { url: `${i.url}` },
-                  mimetype: "video/mp4",
-                },
-                { quoted: m }
-              );
-            } else {
-              ichi.sendMessage(
-                from,
-                { image: { url: `${i.url}` } },
-                { quoted: m }
-              );
+        try {
+          ig(text).then((res) => {
+            const ig = res.data;
+            for (let i of ig) {
+              if (i.type.includes("video")) {
+                ichi.sendMessage(
+                  from,
+                  {
+                    video: { url: `${i.url}` },
+                    mimetype: "video/mp4",
+                  },
+                  { quoted: m }
+                );
+              } else {
+                ichi.sendMessage(
+                  from,
+                  { image: { url: `${i.url}` } },
+                  { quoted: m }
+                );
+              }
             }
-          }
-        });
+          });
+        } catch (err) {
+          m.reply("Gagal saat mendownload video...");
+        }
         //for (let i of ig3) {
         //if (i.type.includes("mp4")) {
         //ichi.sendMessage(from,{ video: { url: `${i.url}` }, mimetype: 'video/mp4',quoted: m})
@@ -2973,7 +2986,7 @@ Resolusi : 360p`;
             );
           }
         } catch (err) {
-          reply("Gagal saat mendownload video/foto");
+          m.reply("Gagal saat mendownload foto/video...");
         }
         (await isPremium) ? isPremium : limitAdd(m.sender);
         // TiktokDL(text, {
@@ -3058,8 +3071,8 @@ Resolusi : 360p`;
               },
             });
           }
-        } catch (error) {
-          m.reply(error);
+        } catch (err) {
+          m.reply("Gagal saat mendownload musik...");
         }
         (await isPremium) ? isPremium : limitAdd(m.sender);
         break;
@@ -3119,7 +3132,7 @@ Resolusi : 360p`;
             });
           });
         } catch (err) {
-          m.reply("Tidak dapat mendownload video");
+          m.reply("Gagal saat mendownload video...");
         }
         (await isPremium) ? isPremium : limitAdd(m.sender);
         break;
@@ -3139,14 +3152,14 @@ Resolusi : 360p`;
           hmm = (await "./trash/remini-") + getRandom("");
           let mee = await ichi.downloadAndSaveMediaMessage(quoted, hmm);
           let mem = await TelegraPh(mee);
-          await remini(mem).then((res) => {
-            ichi.sendMessage(
+          await remini(mem).then(async (res) => {
+            await ichi.sendMessage(
               from,
               { image: { url: res.image_data } },
               { quoted: m }
             );
           });
-          fs.unlinkSync(mee);
+          await fs.unlinkSync(mee);
         } catch (err) {
           m.reply("Gagal dalam mengupload file");
         }
@@ -3167,123 +3180,127 @@ Resolusi : 360p`;
             key: m.key,
           },
         });
-        await mediafireDl(text).then((mediafire) => {
-          if (mediafire.mime.includes("mp4")) {
-            ichi.sendMessage(from, {
-              video: { url: `${mediafire.link}` },
-              mimetype: "video/mp4",
-              quoted: m,
-            });
-          } else if (mediafire.mime.includes("MP4")) {
-            ichi.sendMessage(from, {
-              video: { url: `${mediafire.link}` },
-              mimetype: "video/mp4",
-              quoted: m,
-            });
-          } else if (mediafire.mime.includes("jpg")) {
-            ichi.sendMessage(from, {
-              image: { url: `${mediafire.link}` },
-              mimetype: "image/jpeg",
-              quoted: m,
-            });
-          } else if (mediafire.mime.includes("png")) {
-            ichi.sendMessage(from, {
-              image: { url: `${mediafire.link}` },
-              mimetype: "image/jpeg",
-              quoted: m,
-            });
-          } else if (mediafire.mime.includes("mp3")) {
-            ichi.sendMessage(
-              from,
-              {
-                document: { url: `${mediafire.link}` },
-                fileName: mediafire.title,
-                mimetype: "audio/mpeg",
-              },
-              { quoted: m }
-            );
-          } else if (mediafire.mime.includes("m4a")) {
-            ichi.sendMessage(
-              from,
-              {
-                document: { url: `${mediafire.link}` },
-                fileName: mediafire.title,
-                mimetype: "audio/mpeg",
-              },
-              { quoted: m }
-            );
-          } else if (mediafire.mime.includes("txt")) {
-            ichi.sendMessage(
-              from,
-              {
-                document: { url: `${mediafire.link}` },
-                fileName: mediafire.title,
-                mimetype: "text/plain",
-              },
-              { quoted: m }
-            );
-          } else if (mediafire.mime.includes("xml")) {
-            ichi.sendMessage(
-              from,
-              {
-                document: { url: `${mediafire.link}` },
-                fileName: mediafire.title,
-                mimetype: "application/xml",
-              },
-              { quoted: m }
-            );
-          } else if (mediafire.mime.includes("zip")) {
-            ichi.sendMessage(
-              from,
-              {
-                document: { url: `${mediafire.link}` },
-                fileName: mediafire.title,
-                mimetype: "application/zip",
-              },
-              { quoted: m }
-            );
-          } else if (mediafire.mime.includes("rar")) {
-            ichi.sendMessage(
-              from,
-              {
-                document: { url: `${mediafire.link}` },
-                fileName: mediafire.title,
-                mimetype: "application/rar",
-              },
-              { quoted: m }
-            );
-          } else if (mediafire.mime.includes("7z")) {
-            ichi.sendMessage(
-              from,
-              {
-                document: { url: `${mediafire.link}` },
-                fileName: mediafire.title,
-                mimetype: "application/7z",
-              },
-              { quoted: m }
-            );
-          } else if (mediafire.mime.includes("apk")) {
-            ichi.sendMessage(
-              from,
-              {
-                document: { url: `${mediafire.link}` },
-                fileName: mediafire.title,
-                mimetype: "application/apk",
-              },
-              { quoted: m }
-            );
-          } else if (mediafire.mime.includes("pdf")) {
-            ichi.sendMessage(
-              from,
-              {
-                document: { url: `${mediafire.link}` },
-                fileName: mediafire.title,
-                mimetype: "application/pdf",
-              },
-              { quoted: m }
-            );
-          }
-        });
+        try {
+          await mediafireDl(text).then((mediafire) => {
+            if (mediafire.mime.includes("mp4")) {
+              ichi.sendMessage(from, {
+                video: { url: `${mediafire.link}` },
+                mimetype: "video/mp4",
+                quoted: m,
+              });
+            } else if (mediafire.mime.includes("MP4")) {
+              ichi.sendMessage(from, {
+                video: { url: `${mediafire.link}` },
+                mimetype: "video/mp4",
+                quoted: m,
+              });
+            } else if (mediafire.mime.includes("jpg")) {
+              ichi.sendMessage(from, {
+                image: { url: `${mediafire.link}` },
+                mimetype: "image/jpeg",
+                quoted: m,
+              });
+            } else if (mediafire.mime.includes("png")) {
+              ichi.sendMessage(from, {
+                image: { url: `${mediafire.link}` },
+                mimetype: "image/jpeg",
+                quoted: m,
+              });
+            } else if (mediafire.mime.includes("mp3")) {
+              ichi.sendMessage(
+                from,
+                {
+                  document: { url: `${mediafire.link}` },
+                  fileName: mediafire.title,
+                  mimetype: "audio/mpeg",
+                },
+                { quoted: m }
+              );
+            } else if (mediafire.mime.includes("m4a")) {
+              ichi.sendMessage(
+                from,
+                {
+                  document: { url: `${mediafire.link}` },
+                  fileName: mediafire.title,
+                  mimetype: "audio/mpeg",
+                },
+                { quoted: m }
+              );
+            } else if (mediafire.mime.includes("txt")) {
+              ichi.sendMessage(
+                from,
+                {
+                  document: { url: `${mediafire.link}` },
+                  fileName: mediafire.title,
+                  mimetype: "text/plain",
+                },
+                { quoted: m }
+              );
+            } else if (mediafire.mime.includes("xml")) {
+              ichi.sendMessage(
+                from,
+                {
+                  document: { url: `${mediafire.link}` },
+                  fileName: mediafire.title,
+                  mimetype: "application/xml",
+                },
+                { quoted: m }
+              );
+            } else if (mediafire.mime.includes("zip")) {
+              ichi.sendMessage(
+                from,
+                {
+                  document: { url: `${mediafire.link}` },
+                  fileName: mediafire.title,
+                  mimetype: "application/zip",
+                },
+                { quoted: m }
+              );
+            } else if (mediafire.mime.includes("rar")) {
+              ichi.sendMessage(
+                from,
+                {
+                  document: { url: `${mediafire.link}` },
+                  fileName: mediafire.title,
+                  mimetype: "application/rar",
+                },
+                { quoted: m }
+              );
+            } else if (mediafire.mime.includes("7z")) {
+              ichi.sendMessage(
+                from,
+                {
+                  document: { url: `${mediafire.link}` },
+                  fileName: mediafire.title,
+                  mimetype: "application/7z",
+                },
+                { quoted: m }
+              );
+            } else if (mediafire.mime.includes("apk")) {
+              ichi.sendMessage(
+                from,
+                {
+                  document: { url: `${mediafire.link}` },
+                  fileName: mediafire.title,
+                  mimetype: "application/apk",
+                },
+                { quoted: m }
+              );
+            } else if (mediafire.mime.includes("pdf")) {
+              ichi.sendMessage(
+                from,
+                {
+                  document: { url: `${mediafire.link}` },
+                  fileName: mediafire.title,
+                  mimetype: "application/pdf",
+                },
+                { quoted: m }
+              );
+            }
+          });
+        } catch (err) {
+          m.reply("Gagal saat mendownload video...");
+        }
         (await isPremium) ? isPremium : limitAdd(m.sender);
         break;
 
@@ -3350,6 +3367,21 @@ Resolusi : 360p`;
           )}`,
         });
         break;
+      case "chatgroup":
+      case "pesangrup":
+        if (!isOwner && !m.key.fromMe) return m.reply(mess.botOwner);
+        nomeruser = args[0].replace(/[^0-9]/g, "") + "@g.us";
+        textuser = text.replace(/[^a-z A-Z]/g, "");
+        ichi.sendMessage(nomeruser, {
+          text: "*[Pesan dari Owner]*\n\n" + textuser,
+        });
+        ichi.sendMessage(m.chat, {
+          text: `Pesan telah dikirimkan kepada wa.me/${args[0].replace(
+            /[^0-9]/g,
+            ""
+          )}`,
+        });
+        break;
       case "listpremium":
       case "listprem":
         if (!isOwner && !m.key.fromMe) return m.reply(mess.botOwner);
@@ -3367,7 +3399,7 @@ Resolusi : 360p`;
           m.reply("Testing Speed...");
           let o;
           try {
-            o = await exec("python speed.py");
+            o = await exec("python ./lib/speed.py");
           } catch (e) {
             o = e;
           } finally {
@@ -3554,21 +3586,6 @@ Ambarawa, Ambon, Amlapura, Amuntai, Argamakmur, ͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏
         m.reply(ini_txt);
         break;
       case "cekresi":
-        let txtcr = `*EN : Register first*\n*ID : Daftar dulu*`;
-        let tombolcr = [
-          {
-            buttonId: `.donasi`,
-            buttonText: { displayText: "Donate" },
-            type: 1,
-          },
-          {
-            buttonId: `.register`,
-            buttonText: { displayText: "Register" },
-            type: 1,
-          },
-        ];
-        if (!isRegistered)
-          return ichi.sendButtonText(m.chat, tombolcr, txtcr, "YaSya Bot", m);
         if (isLimit(m.sender)) return;
         if (!isOwner) return m.reply(mess.botOwner);
         if (args.length == 0)
@@ -3805,7 +3822,7 @@ Ambarawa, Ambon, Amlapura, Amuntai, Argamakmur, ͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏
         replygcxeon("test");
         break;
       case "bot":
-        reply("Apa? mau pakai bot? caranya kirim .help");
+        reply("Apa? mau pakai bot? caranya kirim .menu");
         break;
       //Eval
       default:
@@ -3837,32 +3854,32 @@ Ambarawa, Ambon, Amlapura, Amuntai, Argamakmur, ͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏
           });
         }
         if (budy == `Bot`) {
-          reply(`Apa? mau pakai bot? caranya kirim .help`);
+          reply(`Apa? mau pakai bot? caranya kirim .menu`);
         }
         if (budy == `bot`) {
-          reply(`Apa? mau pakai bot? caranya kirim .help`);
+          reply(`Apa? mau pakai bot? caranya kirim .menu`);
         }
         if (budy == `Halo`) {
-          reply(`Apa? mau pakai bot? caranya kirim .help`);
+          reply(`Apa? mau pakai bot? caranya kirim .menu`);
         }
         if (budy == `halo`) {
-          reply(`Apa? mau pakai bot? caranya kirim .help`);
+          reply(`Apa? mau pakai bot? caranya kirim .menu`);
         }
         if (budy == `P`) {
           reply(
-            `Kesopanan minus( - )\n\n.help untuk melihat semua command/fitur`
+            `Kesopanan minus( - )\n\n.menu untuk melihat semua command/fitur`
           );
         }
         if (budy == `p`) {
           reply(
-            `Kesopanan minus( - )\n\n.help untuk melihat semua command/fitur`
+            `Kesopanan minus( - )\n\n.menu untuk melihat semua command/fitur`
           );
         }
         if (budy == `Hai`) {
-          reply(`Hai juga kak, mau pakai bot? caranya kirim .help`);
+          reply(`Hai juga kak, mau pakai bot? caranya kirim .menu`);
         }
         if (budy == `hai`) {
-          reply(`Hai juga kak, mau pakai bot? caranya kirim .help`);
+          reply(`Hai juga kak, mau pakai bot? caranya kirim .menu`);
         }
         if (budy == `Asu`) {
           buffer = fs.readFileSync(`./media/ngomongmoral.opus`);
@@ -4037,12 +4054,13 @@ Ambarawa, Ambon, Amlapura, Amuntai, Argamakmur, ͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏
           } catch (err) {
             ichi.sendMessage(gruplog, {
               text:
-                `*[ ERROR LOG ]*\n\n${moment()
+                `*[ ERROR LOG YASYA.JS ]*\n\n${moment()
                   .tz("Asia/Jakarta")
                   .format(
                     "HH:mm:ss DD/MM/YYYY"
-                  )}\nError di bagian ${__filename}\n${budy || m.mtype}\n` +
-                util.format(err),
+                  )}\nError di bagian ${__filename}\n${budy || m.mtype} FROM ${
+                  m.sender.split("@")[0]
+                }\n` + util.format(err),
             });
             m = String(err);
             await m.reply(m);
@@ -4053,12 +4071,13 @@ Ambarawa, Ambon, Amlapura, Amuntai, Argamakmur, ͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏
           exec(budy.slice(2), (err, stdout) => {
             ichi.sendMessage(gruplog, {
               text:
-                `*[ ERROR LOG ]*\n\n${moment()
+                `*[ ERROR LOG YASYA.JS ]*\n\n${moment()
                   .tz("Asia/Jakarta")
                   .format(
                     "HH:mm:ss DD/MM/YYYY"
-                  )}\nError di bagian ${__filename}\n${budy || m.mtype}\n` +
-                util.format(err),
+                  )}\nError di bagian ${__filename}\n${budy || m.mtype} FROM ${
+                  m.sender.split("@")[0]
+                }\n` + util.format(err),
             });
             if (err) return reply(err);
             if (stdout) return m.reply(stdout);
@@ -4068,11 +4087,11 @@ Ambarawa, Ambon, Amlapura, Amuntai, Argamakmur, ͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏
   } catch (err) {
     ichi.sendMessage(gruplog, {
       text:
-        `*[ ERROR LOG ]*\n\n${moment()
+        `*[ ERROR LOG YASYA.JS ]*\n\n${moment()
           .tz("Asia/Jakarta")
           .format("HH:mm:ss DD/MM/YYYY")}\nError di bagian ${__filename}\n${
           budy || m.mtype
-        }\n` + util.format(err),
+        } FROM ${m.sender.split("@")[0]}\n` + util.format(err),
     });
     //  m.reply(util.format(err))
   }
