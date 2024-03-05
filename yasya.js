@@ -1304,7 +1304,7 @@ https://saweria.co/alvianto17\n\n\n
 │  Nama BOT: YaSya BOT
 │  Owner: Alvianto
 │  Server Region: Indonesia
-│  Database: MySQL
+│  Database: SQL - MariaDB
 │  OS: ${os.version()} ${os.arch()}
 │  Uptime BOT: ${runtime(process.uptime())}
 ╰───────────⊱
