@@ -54,10 +54,9 @@ global.prefa = ["!", ".", "#", "/"]; //Ilangin Prefix Yang '' Kalau Gamau No Pre
 global.gruplog = "120363198930918529@g.us";
 
 global.db = mysql.createPool({
-  host: "mikrotik.alvianto.biz.id",
-  port: "1707",
-  user: "root",
-  password: "alvianto17072003",
+  host: "sql.yasyabot.my.id",
+  user: "alvianto",
+  password: "Alvianto17072003",
   database: "yasyabot",
 });
 
@@ -73,15 +72,16 @@ global.premium = JSON.parse(readfilepremium);
 //Starting In Console
 async function startIchigo() {
   const store = makeInMemoryStore({
-    logger: pino({ level: "fatal" }),
+    logger: pino({ level: "silent" }),
   });
   const { state, saveCreds } = await useMultiFileAuthState(
     "./whatsapp-session"
   );
   let ichi = makeWASocket({
-    logger: pino({ level: "fatal" }),
+    logger: pino({ level: "silent" }),
     printQRInTerminal: true,
     browser: ["Linux", "Chrome", ""],
+    auth: state,
     syncFullHistory: true,
     patchMessageBeforeSending: (message) => {
       const requiresPatch = !!(
@@ -104,7 +104,6 @@ async function startIchigo() {
       }
       return message;
     },
-    auth: state,
   });
 
   //Connection Active
@@ -165,15 +164,32 @@ async function startIchigo() {
   store.bind(ichi.ev);
   ichi.ev.on("messages.upsert", () => {});
 
+  //Connect To Command
+  ichi.ev.on("messages.upsert", async (chatUpdate) => {
+    //console.log(JSON.stringify(chatUpdate, undefined, 2))
+    mek = chatUpdate.messages[0];
+    if (!mek.message) return;
+    mek.message =
+      Object.keys(mek.message)[0] === "ephemeralMessage"
+        ? mek.message.ephemeralMessage.message
+        : mek.message;
+    if (mek.key && mek.key.remoteJid === "status@broadcast") return;
+    if (!ichi.public && !mek.key.fromMe && chatUpdate.type === "notify") return;
+    if (mek.key.id.startsWith("BAE5") && mek.key.id.length === 16) return;
+    m = smsg(ichi, mek, store);
+    require("./yasya")(ichi, m, chatUpdate, store);
+    // try {
+    // } catch (err) {
+    //   console.log(util.format(err));
+    // }
+  });
+
+  ichi.ev.on("creds.update", saveCreds);
+
   ichi.ev.on("messages.upsert", async (upsert) => {
-    //console.log(JSON.stringify(upsert, '', 2))
     for (let msg of upsert.messages) {
       if (msg.key.remoteJid === "status@broadcast") {
-        //console.log(JSON.stringify(upsert, '', 2))
         if (msg.message?.protocolMessage) return;
-        console.log(
-          `Lihat status ${msg.pushName} ${msg.key.participant.split("@")[0]}`
-        );
         await ichi.readMessages([msg.key]);
         await sleep(100);
         return await ichi.readMessages([msg.key]);
@@ -196,7 +212,7 @@ async function startIchigo() {
             return;
           }
         });
-        teks = `Kamu terdeteksi menelepon BOT, Kamu akan di *Block dan masuk daftar Banned*, jika tidak sengaja silahkan gabung grup untuk melepas *Block dan Banned* kamu \n\nLink Grup: https://chat.whatsapp.com/I9t1FLgLJCJ64F2JxQbQpA`;
+        teks = `Kamu terdeteksi menelepon BOT, Kamu akan di *Block dan masuk daftar Banned*, jika tidak sengaja silahkan gabung grup untuk melepas *Block dan Banned* kamu \n\nLink Grup: https://chat.whatsapp.com/EMU6Drr3TH56OvqKNDforo`;
         ichi.sendMessage(sen.chatId, { text: teks });
         await sleep(5000);
         await ichi.updateBlockStatus(sen.chatId, "block");
@@ -209,28 +225,6 @@ async function startIchigo() {
     }
     return;
   });
-
-  //Connect To Command
-  ichi.ev.on("messages.upsert", async (chatUpdate) => {
-    //console.log(JSON.stringify(chatUpdate, undefined, 2))
-    mek = chatUpdate.messages[0];
-    if (!mek.message) return;
-    mek.message =
-      Object.keys(mek.message)[0] === "ephemeralMessage"
-        ? mek.message.ephemeralMessage.message
-        : mek.message;
-    if (mek.key && mek.key.remoteJid === "status@broadcast") return;
-    if (!ichi.public && !mek.key.fromMe && chatUpdate.type === "notify") return;
-    if (mek.key.id.startsWith("BAE5") && mek.key.id.length === 16) return;
-    m = smsg(ichi, mek, store);
-    require("./yasya")(ichi, m, chatUpdate, store);
-    // try {
-    // } catch (err) {
-    //   console.log(util.format(err));
-    // }
-  });
-
-  ichi.ev.on("creds.update", saveCreds);
 
   ichi.decodeJid = (jid) => {
     if (!jid) return jid;

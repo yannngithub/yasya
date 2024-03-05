@@ -1,5 +1,6 @@
 ﻿const {
   WA_DEFAULT_EPHEMERAL,
+  delay,
   // BufferJSON,
   // generateWAMessageFromContent,
   // downloadContentFromMessage,
@@ -90,17 +91,18 @@ let {
   //format,
   //logic,
   //generateProfilePicture,
-  //parseMention,
+  parseMention,
   getRandom,
   //pickRandom,
 } = require("./lib/myfunc");
 let { toAudio, toPTT } = require("./lib/converter");
 const { isFiltered, addFilter } = require("./lib/antispam");
 let musical = require("./lib/musical");
+let vote = [];
 
 global.limitawal = {
   premium: "Unlimited",
-  free: 10,
+  free: 25,
 };
 
 global.data_registrasi = `SELECT * FROM tbl_registrasi`;
@@ -679,88 +681,6 @@ NOTE :\n1. Untuk menggunakan bot kirim .menu\n2. Untuk cek limit kirim .ceklimit
       }
     };
 
-    // const isLimit = (sender2) => {
-    //   let position = false;
-    //   for (let i of readlimit) {
-    //     if (i.id === sender2) {
-    //       let limits = i.limit;
-    //       if (limits >= limitawal.free) {
-    //         position = true;
-    //         reply(
-    //           `*Maaf ${pushname} limit anda telah habis*\n\n_Note : Limit reset setiap jam 00:00 WIB\nPengen limitnya unlimited?, Bisa kirim .buypremium_`
-    //         );
-    //         return true;
-    //       } else {
-    //         readlimit;
-    //         position = true;
-    //         return false;
-    //       }
-    //     }
-    //   }
-    //   if (position === false) {
-    //     const limitpush = {
-    //       id: m.sender,
-    //       username: pushname,
-    //       limit: 0,
-    //       time: moment().tz("Asia/Jakarta").format("HH:mm:ss DD/MM/YYYY"),
-    //     };
-    //     readlimit.push(limitpush);
-    //     fs.writeFileSync(
-    //       "./database/userlimit.json",
-    //       JSON.stringify(readlimit, null, 1)
-    //     );
-    //     return false;
-    //   }
-    // };
-
-    //Masih tetap ngepush limit
-    // const isLimit = (sender2) => {
-    //   db.query(data_registrasi, (err, result) => {
-    //     try {
-    //       let position = false;
-    //       for (let i of result) {
-    //         if (i.phone_number === sender2) {
-    //           let limits = i.limit_user;
-    //           if (limits >= limitawal.free) {
-    //             position = true;
-    //             reply(
-    //               `*Maaf ${pushname} limit anda telah habis*\n\n_Note : Limit reset setiap jam 00:00 WIB\nPengen limitnya unlimited?, Bisa kirim .buypremium_`
-    //             );
-    //             return true;
-    //           } else {
-    //             db.query(data_registrasi, (err, result) => {
-    //               result;
-    //               position = true;
-    //               return false;
-    //             });
-    //           }
-    //         }
-    //       }
-    //       if (position === false) {
-    //         const dataToInsert = {
-    //           phone_number: sender2,
-    //           user_name: pushname,
-    //           user_status: "User",
-    //           date_reg: moment()
-    //             .tz("Asia/Jakarta")
-    //             .format("HH:mm:ss DD/MM/YYYY"),
-    //           limit_user: 0,
-    //         };
-    //         const insertQuery = "INSERT INTO tbl_registrasi SET ?";
-    //         db.query(insertQuery, dataToInsert, (err, results) => {
-    //           if (err) {
-    //             console.error("Error inserting data:", err);
-    //             return;
-    //           }
-    //         });
-    //         return false;
-    //       }
-    //     } catch {
-    //       console.log("Error saat mencari data...");
-    //     }
-    //   });
-    // };
-
     const bayarLimit = (sender2, amount) => {
       let position = false;
       Object.keys(readlimit).forEach((i) => {
@@ -785,57 +705,240 @@ NOTE :\n1. Untuk menggunakan bot kirim .menu\n2. Untuk cek limit kirim .ceklimit
           found = i;
         }
         global.messs = {
-          banned: `Kamu telah terbanned dengan alasan "${cekban.alasan_ban}"\n\nJika tidak sengaja silahkan join grup dibawah ini dan tag bot untuk melepas *Banned* mu\nLink Grup: https://chat.whatsapp.com/K3rILprlI0xHS1IxYQqwJo`,
+          banned: `Kamu telah terbanned dengan alasan "${cekban.alasan_ban}"\n\nJika tidak sengaja silahkan join grup dibawah ini dan tag bot untuk melepas *Banned* mu\nLink Grup: https://chat.whatsapp.com/EMU6Drr3TH56OvqKNDforo`,
         };
       }
     });
 
-    //reply
-    async function replygcxeon(teks) {
-      if (typereply === "v1") {
-        m.reply(teks);
-      } else if (typereply === "v2") {
-        ichi.sendMessage(
-          m.chat,
+    //TicTacToe
+    this.game = this.game ? this.game : {};
+    let room = Object.values(this.game).find(
+      (room) =>
+        room.id &&
+        room.game &&
+        room.state &&
+        room.id.startsWith("tictactoe") &&
+        [room.game.playerX, room.game.playerO].includes(m.sender) &&
+        room.state == "PLAYING"
+    );
+    if (room) {
+      let ok;
+      let isWin = !1;
+      let isTie = !1;
+      let isSurrender = !1;
+      if (!/^([1-9]|(me)?nyerah|surr?ender|off|skip)$/i.test(m.text)) return;
+      isSurrender = !/^[1-9]$/.test(m.text);
+      if (m.sender !== room.game.currentTurn) {
+        // nek wayahku
+        if (!isSurrender) return !0;
+      }
+      if (
+        !isSurrender &&
+        1 >
+          (ok = room.game.turn(
+            m.sender === room.game.playerO,
+            parseInt(m.text) - 1
+          ))
+      ) {
+        m.reply(
           {
-            contextInfo: {
-              externalAdReply: {
-                showAdAttribution: true,
-                title: "YaSya BOT",
-                body: "YaSya BOT1",
-                previewType: "PHOTO",
-                thumbnail: fs.readFileSync("./media/blankpp.png"),
-                sourceUrl: "https://chat.whatsapp.com/I9t1FLgLJCJ64F2JxQbQpA",
-              },
-            },
-            text: teks,
-          },
-          {
-            quoted: m,
-          }
+            "-3": "Game telah berakhir",
+            "-2": "Invalid",
+            "-1": "Posisi Invalid",
+            0: "Posisi Invalid",
+          }[ok]
         );
-      } else if (typereply === "v3") {
-        ichi.sendMessage(
-          m.chat,
-          {
-            text: teks,
-            contextInfo: {
-              externalAdReply: {
-                showAdAttribution: true,
-                title: "YaSya BOT",
-                body: "YaSya BOT1",
-                thumbnail: fs.readFileSync("./media/blankpp.png"),
-                sourceUrl: websitex,
-                mediaType: 1,
-                renderLargerThumbnail: true,
-              },
-            },
-          },
-          { quoted: m }
-        );
+        return !0;
+      }
+      if (m.sender === room.game.winner) isWin = true;
+      else if (room.game.board === 511) isTie = true;
+      let arr = room.game.render().map((v) => {
+        return {
+          X: "❌",
+          O: "⭕",
+          1: "1️⃣",
+          2: "2️⃣",
+          3: "3️⃣",
+          4: "4️⃣",
+          5: "5️⃣",
+          6: "6️⃣",
+          7: "7️⃣",
+          8: "8️⃣",
+          9: "9️⃣",
+        }[v];
+      });
+      if (isSurrender) {
+        room.game._currentTurn = m.sender === room.game.playerX;
+        isWin = true;
+      }
+      let winner = isSurrender ? room.game.currentTurn : room.game.winner;
+      let str = `Room ID: ${room.id}
+
+${arr.slice(0, 3).join("")}
+${arr.slice(3, 6).join("")}
+${arr.slice(6).join("")}
+
+${
+  isWin
+    ? `@${winner.split("@")[0]} Menang!`
+    : isTie
+    ? `Game berakhir`
+    : `Giliran ${["❌", "⭕"][1 * room.game._currentTurn]} (@${
+        room.game.currentTurn.split("@")[0]
+      })`
+}
+❌: @${room.game.playerX.split("@")[0]}
+⭕: @${room.game.playerO.split("@")[0]}
+
+Ketik *nyerah* untuk menyerah dan mengakui kekalahan`;
+      if ((room.game._currentTurn ^ isSurrender ? room.x : room.o) !== m.chat)
+        room[room.game._currentTurn ^ isSurrender ? "x" : "o"] = m.chat;
+      if (room.x !== room.o)
+        await ichi.sendMessage(room.x, {
+          text: str,
+          mentions: parseMention(str),
+        });
+      await ichi.sendMessage(room.x, {
+        text: str,
+        mentions: parseMention(str),
+      });
+      if (isTie || isWin) {
+        delete this.game[room.id];
       }
     }
 
+    //Suit PvP
+    this.suit = this.suit ? this.suit : {};
+    let roof = Object.values(this.suit).find(
+      (roof) => roof.id && roof.status && [roof.p, roof.p2].includes(m.sender)
+    );
+    if (roof) {
+      let win = "";
+      let tie = false;
+      if (
+        m.sender == roof.p2 &&
+        /^(acc(ept)?|terima|gas|oke?|tolak|gamau|nanti|ga(k.)?bisa|y)/i.test(
+          m.text
+        ) &&
+        m.isGroup &&
+        roof.status == "wait"
+      ) {
+        if (/^(tolak|gamau|nanti|n|ga(k.)?bisa)/i.test(m.text)) {
+          ichi.sendTextWithMentions(
+            m.chat,
+            `@${roof.p2.split`@`[0]} menolak suit, suit dibatalkan`,
+            m
+          );
+          delete this.suit[roof.id];
+          return !0;
+        }
+        roof.status = "play";
+        roof.asal = m.chat;
+        clearTimeout(roof.waktu);
+        //delete roof[roof.id].waktu
+        ichi.sendMessage(m.chat, {
+          text: `Suit telah dikirimkan ke chat
+
+@${roof.p.split`@`[0]} dan @${roof.p2.split`@`[0]}
+
+Silahkan pilih suit di chat masing"
+klik https://wa.me/${botNumber.split`@`[0]}`,
+          mentions: [roof.p, roof.p2],
+        });
+        if (!roof.pilih)
+          ichi.sendText(
+            roof.p,
+            `Silahkan pilih \n\nBatu🗿\nKertas📄\nGunting✂️`,
+            m
+          );
+        if (!roof.pilih2)
+          ichi.sendText(
+            roof.p2,
+            `Silahkan pilih \n\nBatu🗿\nKertas📄\nGunting✂️`,
+            m
+          );
+        roof.waktu_milih = setTimeout(() => {
+          if (!roof.pilih && !roof.pilih2)
+            ichi.sendText(
+              m.chat,
+              `Kedua pemain tidak niat main,\nSuit dibatalkan`
+            );
+          else if (!roof.pilih || !roof.pilih2) {
+            win = !roof.pilih ? roof.p2 : roof.p;
+            ichi.sendTextWithMentions(
+              m.chat,
+              `@${
+                (roof.pilih ? roof.p2 : roof.p).split`@`[0]
+              } tidak memilih suit, game berakhir`,
+              m
+            );
+          }
+          delete this.suit[roof.id];
+          return !0;
+        }, roof.timeout);
+      }
+      let jwb = m.sender == roof.p;
+      let jwb2 = m.sender == roof.p2;
+      let g = /gunting/i;
+      let b = /batu/i;
+      let k = /kertas/i;
+      let reg = /^(gunting|batu|kertas)/i;
+      if (jwb && reg.test(m.text) && !roof.pilih && !m.isGroup) {
+        roof.pilih = reg.exec(m.text.toLowerCase())[0];
+        roof.text = m.text;
+        m.reply(
+          `Kamu telah memilih ${m.text} ${
+            !roof.pilih2 ? `\n\nMenunggu lawan memilih` : ""
+          }`
+        );
+        if (!roof.pilih2)
+          ichi.sendText(
+            roof.p2,
+            "_Lawan sudah memilih_\nSekarang giliran kamu",
+            0
+          );
+      }
+      if (jwb2 && reg.test(m.text) && !roof.pilih2 && !m.isGroup) {
+        roof.pilih2 = reg.exec(m.text.toLowerCase())[0];
+        roof.text2 = m.text;
+        m.reply(
+          `Kamu telah memilih ${m.text} ${
+            !roof.pilih ? `\n\nMenunggu lawan memilih` : ""
+          }`
+        );
+        if (!roof.pilih)
+          ichi.sendText(
+            roof.p,
+            "_Lawan sudah memilih_\nSekarang giliran kamu",
+            0
+          );
+      }
+      let stage = roof.pilih;
+      let stage2 = roof.pilih2;
+      if (roof.pilih && roof.pilih2) {
+        clearTimeout(roof.waktu_milih);
+        if (b.test(stage) && g.test(stage2)) win = roof.p;
+        else if (b.test(stage) && k.test(stage2)) win = roof.p2;
+        else if (g.test(stage) && k.test(stage2)) win = roof.p;
+        else if (g.test(stage) && b.test(stage2)) win = roof.p2;
+        else if (k.test(stage) && b.test(stage2)) win = roof.p;
+        else if (k.test(stage) && g.test(stage2)) win = roof.p2;
+        else if (stage == stage2) tie = true;
+        ichi.sendMessage(roof.asal, {
+          text: `_*Hasil Suit*_${tie ? "\nSERI" : ""}
+
+@${roof.p.split`@`[0]} (${roof.text}) ${
+            tie ? "" : roof.p == win ? ` Menang \n` : ` Kalah \n`
+          }
+@${roof.p2.split`@`[0]} (${roof.text2}) ${
+            tie ? "" : roof.p2 == win ? ` Menang \n` : ` Kalah \n`
+          }
+`.trim(),
+          mentions: [roof.p, roof.p2],
+        });
+        delete this.suit[roof.id];
+      }
+    }
     //ANTI-SPAM BY ITALU
     // if (isCmd && isFiltered(from) && !isGroup) {
     //   const ff = ichi.sendMessage(from, {
@@ -868,26 +971,27 @@ NOTE :\n1. Untuk menggunakan bot kirim .menu\n2. Untuk cek limit kirim .ceklimit
       }
     );
 
-    // //Reset Limit every 00:00 WIB
-    // cron.schedule(
-    //   "0 0 * * *",
-    //   function () {
-    //     Object.keys(hasilquery_registrasi).forEach(async (user) => {
-    //       const updateQuery = "UPDATE tbl_registrasi SET limit_user = ?";
-    //       const values = [0];
-    //       db.query(updateQuery, values, (error, results, fields) => {
-    //         if (error) throw error;
-    //         // Tampilkan hasil update
-    //         //console.log("Jumlah baris yang terupdate:", results.affectedRows);
-    //       });
-    //     }),
-    //       ichi.sendMessage(gruplog, { text: "Reset limit All Users" });
-    //   },
-    //   {
-    //     scheduled: true,
-    //     timezone: "Asia/Jakarta",
-    //   }
-    // );
+    const replyWithLinkGroup = (teks) => {
+      ichi.sendMessage(
+        m.chat,
+        {
+          contextInfo: {
+            externalAdReply: {
+              title: "YaSya BOT - Group Chat",
+              body: "",
+              thumbnail: fs.readFileSync("./media/thumb.jpg"),
+              sourceUrl: "https://chat.whatsapp.com/EMU6Drr3TH56OvqKNDforo",
+              mediaType: 1,
+              renderLargerThumbnail: true,
+            },
+          },
+          text: teks,
+        },
+        {
+          quoted: m,
+        }
+      );
+    };
 
     //Read Message
     if (m.message) {
@@ -1036,7 +1140,6 @@ NOTE :\n1. Untuk menggunakan bot kirim .menu\n2. Untuk cek limit kirim .ceklimit
             "@s.whatsapp.net",
             ""
           )}\n• Limit: ${limitawal.free - updated.limit}`;
-          console.log(readlimit[found]);
           fs.writeFileSync(
             "./database/userlimit.json",
             JSON.stringify(readlimit, null, 1)
@@ -1156,7 +1259,6 @@ https://saweria.co/alvianto17\n\n\n
           return reply(
             `Kamu bukan user premium, kirim perintah *.daftarprem* untuk membeli premium`
           );
-        if (isOwner) return reply(`Kamu tu Owner,  buat apa check premium`);
         if (
           _prem.getPremiumExpired(m.sender, hasilquery_premium) == "PERMANENT"
         )
@@ -1164,8 +1266,8 @@ https://saweria.co/alvianto17\n\n\n
         let cekvip = parseMillisecondss(
           _prem.getPremiumExpired(m.sender, hasilquery_premium) - Date.now()
         );
-        let premiumnya = `*Expired :* ${cekvip.days} day(s) ${cekvip.hours} hour(s) ${cekvip.minutes} minute(s)`;
-        reply(premiumnya);
+        let premiumnya = `*Expired :* ${cekvip.days} Hari ${cekvip.hours} Jam ${cekvip.minutes} Menit`;
+        replyWithLinkGroup(premiumnya);
         break;
       case "buypremium":
       case "buyprem":
@@ -1192,26 +1294,179 @@ https://saweria.co/alvianto17\n\n\n
             let limitCountss =
               limitawal.free - hasilquery_registrasi[user].limit_user;
             lzain = `╭──❲ INFO PENGGUNA ❳
-│ Nama: *${hasilquery_registrasi[user].user_name}*
-│ Type: ${hasilquery_registrasi[user].user_status}
-│ Nomer: wa.me/${m.sender.split("@")[0]}
-│ Limit : ${isPremium ? "Unlimited" : limitCountss}
+│  Nama: *${hasilquery_registrasi[user].user_name}*
+│  Status: ${hasilquery_registrasi[user].user_status}
+│  Limit : ${isPremium ? "Unlimited" : limitCountss}
+│  Nomor: wa.me/${hasilquery_registrasi[user].phone_number.split("@")[0]}
+│  Terdaftar pada: ${hasilquery_registrasi[user].date_reg}
 ╰───────────⊱
 ╭──❲ INFO BOT ❳
 │  Nama BOT: YaSya BOT
 │  Owner: Alvianto
 │  Server Region: Indonesia
+│  Database: MySQL
 │  OS: ${os.version()} ${os.arch()}
 │  Uptime BOT: ${runtime(process.uptime())}
 ╰───────────⊱
-╔════════
+╭──❲ DAFTAR MENU BOT ❳
+│ .menudownload
+│ .menugame
+│ .menugrup
+│ .menumaker
+│ .menuowner
+│ .allmenu
+│ .donate
+│ .ping
+│ .ceklimit
+│ .cekpremium
+╰───────────⊱`;
+            replyWithLinkGroup(lzain);
+          }
+        });
+        break;
+      case "menudownload":
+        if (isBanned) return reply(messs.banned);
+        if (!isRegistered) return reply(textRegister);
+        textmenudownload = `╔════════
+╠══ *DOWNLOAD MENU*
+╠ .play
+╠ .tiktok
+╠ .tiktokmp3
+╠ .ig
+╠ .fb
+╠ .twitter
+╠ .mediafire
+╠ .telesticker
+╠ .yts
+╠ .ytmp3
+╠ .ytmp4
+╚════════`;
+        replyWithLinkGroup(textmenudownload);
+        break;
+      case "menugame":
+        if (isBanned) return reply(messs.banned);
+        if (!isRegistered) return reply(textRegister);
+        textmenugame = `╔════════
+╠══ *GAME MENU*
+╠ .tictactoe
+╠ .suit
+╚════════`;
+        replyWithLinkGroup(textmenugame);
+        break;
+      case "menumaker":
+        if (isBanned) return reply(messs.banned);
+        if (!isRegistered) return reply(textRegister);
+        textmenumaker = `╔════════
+╠══ *MAKER MENU*
+╠ .sticker
+╠ .stickermeme
+╠ .remini
+╠ .toanime
+╠ .toimg
+╠ .tovideo
+╠ .toaudio
+╠ .tomp3
+╠ .tovn
+╠ .togif
+╠ .tourl
+╠ .removebg
+╚════════`;
+        replyWithLinkGroup(textmenumaker);
+        break;
+      case "menuinformasi":
+        if (isBanned) return reply(messs.banned);
+        if (!isRegistered) return reply(textRegister);
+        textmenuinformasi = `╔════════
+╠═ *INFORMATION MENU*
+╠ .ai
+╠ .jadwalsholat
+╠ .gempa
+╠ .gempadirasakan
+╠ .gempaterbaru [Magnitudo 5.0+]
+╠ .whois
+╠ .cuaca
+╠ .checklimit
+╠ .buylimit
+╚════════`;
+        replyWithLinkGroup(textmenuinformasi);
+        break;
+      case "menugrup":
+      case "menugroup":
+        if (isBanned) return reply(messs.banned);
+        if (!isRegistered) return reply(textRegister);
+        textmenugrup = `╔════════
+╠══ *GROUP MENU*
+╠ .vote
+╠ .add
+╠ .kick
+╠ .promote
+╠ .demote
+╠ .tagall
+╠ .hidetag
+╠ .antilink
+╠ .delete
+╠ .setname
+╠ .setdesk
+╠ .setppgrup
+╠ .grupid
+╠ .revoke
+╠ .linkgroup
+╚════════`;
+        replyWithLinkGroup(textmenugrup);
+        break;
+      case "menuowner":
+      case "ownermenu":
+        if (isBanned) return reply(messs.banned);
+        if (!isRegistered) return reply(textRegister);
+        textmenuowner = `╔════════
+╠══ *OWNER MENU*
+╠ .chatuser
+╠ .bc
+╠ .bcgc
+╠ .bcdonate
+╠ .bcgcdonate
+╠ .join
+╠ .leave
+╠ .block
+╠ .unblock
+╠ .blocklist
+╠ .totalblock
+╠ .ban
+╠ .unban
+╠ .listban
+╠ .premium
+╠ .unpremium
+╠ .listpremium
+╠ .listgrupbot
+╠ .setppbot
+╠ .self
+╠ .public
+╠ .resetlimit
+╠ .restartbot
+╠ .speedtest
+╠ .listpengguna
+╠ .listbanned
+╠ .ip
+╠ .cekresi
+╚════════`;
+        replyWithLinkGroup(textmenuowner);
+        break;
+      case "allmenu":
+      case "semuamenu":
+        textallmenu = `╔════════
 ╠══ *MAIN MENU*
 ╠ .daftar
 ╠ .ceklimit
+╠ .me / .dataku
 ╠ .donasi
 ╠ .owner
 ╠ .ping
 ╠ .menu / .help
+╚════════
+╔════════
+╠══ *GAME MENU*
+╠ .tictactoe
+╠ .suit
 ╚════════
 ╔════════
 ╠══ *DOWNLOAD MENU*
@@ -1246,19 +1501,20 @@ https://saweria.co/alvianto17\n\n\n
 ╔════════
 ╠══ *GROUP MENU*
 ╠ .antilink
-╠ .linkgroup
-╠ .grupid
-╠ .revoke
-╠ .delete
+╠ .vote
 ╠ .add
 ╠ .kick
 ╠ .promote
 ╠ .demote
+╠ .tagall
+╠ .hidetag
+╠ .delete
 ╠ .setname
 ╠ .setdesk
 ╠ .setppgrup
-╠ .tagall
-╠ .hidetag
+╠ .grupid
+╠ .revoke
+╠ .linkgroup
 ╚════════
 ╔════════
 ╠══ *MAKER MENU*
@@ -1306,9 +1562,7 @@ https://saweria.co/alvianto17\n\n\n
 ╠ .ip
 ╠ .cekresi
 ╚════════`;
-            ichi.sendMessage(from, { text: lzain });
-          }
-        });
+        replyWithLinkGroup(textallmenu);
         break;
       case "donasi":
       case "donate":
@@ -1354,25 +1608,28 @@ Pembayaran via semua aplikasi kecuali *Pulsa*, Bayar? di .donate ya.\nJangan lup
         break;
       case "owner":
         if (!isRegistered) return reply(textRegister);
-        const vcard =
-          "BEGIN:VCARD\n" +
-          "VERSION:3.0\n" +
-          "N:Yannn Owner Bot\n" +
-          "FN:Yannn Owner Bot\n" +
-          "item1.TEL;waid=62895401223315:62895401223315\n" +
-          "item1.X-ABLabel:Ponsel\n" +
-          "item2.EMAIL;type=INTERNET:tuyulheroes11@gmail.com\n" +
-          "item2.X-ABLabel:Email\n" +
-          "item3.URL:https://instagram.com/alvianto.17\n" +
-          "item3.X-ABLabel:Instagram\n" +
-          "item4.ADR:;;Yogyakarta - Indonesia;;;;\n" +
-          "item4.X-ABLabel:Region\n" +
-          "END:VCARD";
-        ichi.sendMessage(
-          m.chat,
-          { contacts: { displayName: "Jeff", contacts: [{ vcard }] } },
-          { quoted: m }
-        );
+        cariowner =
+          "Mau cari *OWNER BOT*?\nKlik *Bergabung ke Grup* dibawah ini aja terus tag admin.";
+        replyWithLinkGroup(cariowner);
+        // const vcard =
+        //   "BEGIN:VCARD\n" +
+        //   "VERSION:3.0\n" +
+        //   "N:Yannn Owner Bot\n" +
+        //   "FN:Yannn Owner Bot\n" +
+        //   "item1.TEL;waid=62895401223315:62895401223315\n" +
+        //   "item1.X-ABLabel:Ponsel\n" +
+        //   "item2.EMAIL;type=INTERNET:alvianto@yasyabot.biz.id\n" +
+        //   "item2.X-ABLabel:Email\n" +
+        //   "item3.URL:https://instagram.com/alvianto.17\n" +
+        //   "item3.X-ABLabel:Instagram\n" +
+        //   "item4.ADR:;;Yogyakarta - Indonesia;;;;\n" +
+        //   "item4.X-ABLabel:Region\n" +
+        //   "END:VCARD";
+        // ichi.sendMessage(
+        //   m.chat,
+        //   { contacts: { displayName: "Jeff", contacts: [{ vcard }] } },
+        //   { quoted: m }
+        // );
         break;
       case "ping":
       case "botstatus":
@@ -1571,7 +1828,7 @@ https://saweria.co/alvianto17\n`;
           if (!isOwner) return m.reply(mess.botOwner);
           ichi.sendText(
             text ? text : m.chat,
-            "Bot akan keluar dari grup ini, Untuk menggunakan BOT bisa kirim pesan Pribadi ke nomor BOT.\nTerima kasih telah menggunakan *YaSya BOT*\n\nLink Grup BOT: https://chat.whatsapp.com/I9t1FLgLJCJ64F2JxQbQpA"
+            "Bot akan keluar dari grup ini, Untuk menggunakan BOT bisa kirim pesan Pribadi ke nomor BOT.\nTerima kasih telah menggunakan *YaSya BOT*\n\nLink Grup BOT: https://chat.whatsapp.com/EMU6Drr3TH56OvqKNDforo"
           );
           await sleep(3000);
           await ichi.groupLeave(text ? text : m.chat);
@@ -1934,14 +2191,21 @@ https://saweria.co/alvianto17\n`;
       case "delete":
       case "del":
         if (!m.isGroup) return m.reply(mess.group);
-        if (!isBaileys)
-          return reply("Hanya dapat menghapus pesan yang dikirimkan oleh bot");
+        if (!isBotAdmins) return m.reply(mess.botAdmin);
+        if (!isAdmins) return m.reply(mess.admin);
         ichi.sendMessage(from, {
           delete: {
-            remoteJid: m.key.remoteJid,
-            id: m.key.id,
-            fromMe: true,
-            participant: m.key.participant,
+            remoteJid: m.chat,
+            id: m.msg.contextInfo.stanzaId,
+            participant: m.msg.contextInfo.participant,
+          },
+        });
+        await delay(1000);
+        ichi.sendMessage(from, {
+          delete: {
+            remoteJid: m.chat,
+            id: m.id,
+            participant: m.participant,
           },
         });
         break;
@@ -2283,7 +2547,6 @@ https://saweria.co/alvianto17\n`;
                 outputFile,
               })
               .then(async (result) => {
-                //    console.log(result)
                 await ichi.sendMessage(
                   from,
                   {
@@ -2304,9 +2567,7 @@ https://saweria.co/alvianto17\n`;
                   },
                 });
               })
-              .catch((errors) => {
-                console.log(JSON.stringify(errors));
-              });
+              .catch((errors) => {});
           } catch (err) {
             ichi.sendMessage(gruplog, {
               text:
@@ -2733,16 +2994,21 @@ Resolusi : 128kbps`;
           });
           try {
             const yt1 = await youtubedl(text);
-            console.log(yt1);
             const url = await yt1.audio["128kbps"].download();
             var caption = `Title : ${yt1.title}
 Format : MP3
 Resolusi : 128kbps`;
-            ichi.sendImage(m.chat, yt1.thumbnail, caption);
-            ichi.sendMessage(from, {
+            await ichi.sendImage(m.chat, yt1.thumbnail, caption);
+            await ichi.sendMessage(from, {
               document: { url: url },
               mimetype: "audio/mpeg",
               fileName: `${yt1.title}.mp3`,
+            });
+            await ichi.sendMessage(m.chat, {
+              react: {
+                text: "✅",
+                key: m.key,
+              },
             });
           } catch (err) {
             m.reply("Gagal saat mendownload musik...");
@@ -2774,8 +3040,8 @@ Resolusi : 128kbps`;
             var caption = `Judul : ${ytmp41.title}
 Format : Mp4
 Resolusi : 360p`;
-            ichi.sendImage(m.chat, ytmp41.thumbnail, caption);
-            ichi.sendMessage(
+            await ichi.sendImage(m.chat, ytmp41.thumbnail, caption);
+            await ichi.sendMessage(
               m.chat,
               {
                 video: { url: urlmp4 },
@@ -2784,6 +3050,12 @@ Resolusi : 360p`;
               },
               { quoted: m }
             );
+            ichi.sendMessage(m.chat, {
+              react: {
+                text: "✅",
+                key: m.key,
+              },
+            });
           } catch (err) {
             m.reply("Gagal saat mendownload video...");
           }
@@ -2883,11 +3155,11 @@ Resolusi : 360p`;
           },
         });
         try {
-          ig(text).then((res) => {
+          ig(text).then(async (res) => {
             const ig = res.data;
             for (let i of ig) {
               if (i.type.includes("video")) {
-                ichi.sendMessage(
+                await ichi.sendMessage(
                   from,
                   {
                     video: { url: `${i.url}` },
@@ -2896,13 +3168,19 @@ Resolusi : 360p`;
                   { quoted: m }
                 );
               } else {
-                ichi.sendMessage(
+                await ichi.sendMessage(
                   from,
                   { image: { url: `${i.url}` } },
                   { quoted: m }
                 );
               }
             }
+            await ichi.sendMessage(m.chat, {
+              react: {
+                text: "✅",
+                key: m.key,
+              },
+            });
           });
         } catch (err) {
           m.reply("Gagal saat mendownload video...");
@@ -2985,6 +3263,12 @@ Resolusi : 360p`;
               { quoted: m }
             );
           }
+          await ichi.sendMessage(m.chat, {
+            react: {
+              text: "✅",
+              key: m.key,
+            },
+          });
         } catch (err) {
           m.reply("Gagal saat mendownload foto/video...");
         }
@@ -3064,7 +3348,7 @@ Resolusi : 360p`;
               fileName: `${musicaldown1.result.author.nickname}.mp3`,
             });
             await sleep(4000);
-            ichi.sendMessage(m.chat, {
+            await ichi.sendMessage(m.chat, {
               react: {
                 text: "✅",
                 key: m.key,
@@ -3093,12 +3377,18 @@ Resolusi : 360p`;
             key: m.key,
           },
         });
-        hx.twitter(text).then((result) => {
-          ichi.sendMessage(from, {
+        hx.twitter(text).then(async (result) => {
+          await ichi.sendMessage(from, {
             video: { url: `${result.HD}` },
             mimetype: "video/mp4",
             quoted: m,
           });
+        });
+        ichi.sendMessage(m.chat, {
+          react: {
+            text: "✅",
+            key: m.key,
+          },
         });
         (await isPremium) ? isPremium : limitAdd(m.sender);
         break;
@@ -3130,6 +3420,12 @@ Resolusi : 360p`;
               mimetype: "video/mp4",
               quoted: m,
             });
+          });
+          await ichi.sendMessage(m.chat, {
+            react: {
+              text: "✅",
+              key: m.key,
+            },
           });
         } catch (err) {
           m.reply("Gagal saat mendownload video...");
@@ -3323,6 +3619,12 @@ Resolusi : 360p`;
             mimetype: "video/mp4",
             quoted: m,
           });
+        });
+        await ichi.sendMessage(m.chat, {
+          react: {
+            text: "✅",
+            key: m.key,
+          },
         });
         (await isPremium) ? isPremium : limitAdd(m.sender);
         break;
@@ -3694,12 +3996,11 @@ Ambarawa, Ambon, Amlapura, Amuntai, Argamakmur, ͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏
       case "ai":
         try {
           if (!text)
-            return setReply(
+            return reply(
               `Chat dengan AI.\n\nContoh:\n${command} Apa itu coding`
             );
           const results = await openai(text);
           reply(results.result);
-          console.log(results);
         } catch (error) {
           if (error.response) {
             console.log(error.response.status);
@@ -3710,6 +4011,7 @@ Ambarawa, Ambon, Amlapura, Amuntai, Argamakmur, ͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏
             reply("Maaf, sepertinya ada yang error :" + error.message);
           }
         }
+        (await isPremium) ? isPremium : limitAdd(m.sender);
         break;
       case "igstalk":
         if (isBanned) return reply(messs.banned);
@@ -3818,8 +4120,355 @@ Ambarawa, Ambon, Amlapura, Amuntai, Argamakmur, ͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏
       //   );
       //   (await isPremium) ? isPremium : limitAdd(m.sender);
       //   break;
-      case "hooh":
-        replygcxeon("test");
+      case "ttc":
+      case "ttt":
+      case "tictactoe":
+        if (isBanned) return reply(messs.banned);
+        if (!isRegistered) return reply(textRegister);
+        if (!m.isGroup) return m.reply(mess.group);
+        {
+          let TicTacToe = require("./lib/tictactoe");
+          this.game = this.game ? this.game : {};
+          if (
+            Object.values(this.game).find(
+              (room) =>
+                room.id.startsWith("tictactoe") &&
+                [room.game.playerX, room.game.playerO].includes(m.sender)
+            )
+          )
+            return reply("Kamu masih didalam game");
+          let room = Object.values(this.game).find(
+            (room) =>
+              room.state === "WAITING" && (text ? room.name === text : true)
+          );
+          if (room) {
+            await m.reply("Partner ditemukan!");
+            room.o = m.chat;
+            room.game.playerO = m.sender;
+            room.state = "PLAYING";
+            let arr = room.game.render().map((v) => {
+              return {
+                X: "❌",
+                O: "⭕",
+                1: "1️⃣",
+                2: "2️⃣",
+                3: "3️⃣",
+                4: "4️⃣",
+                5: "5️⃣",
+                6: "6️⃣",
+                7: "7️⃣",
+                8: "8️⃣",
+                9: "9️⃣",
+              }[v];
+            });
+            let str = `Room ID: ${room.id}
+
+${arr.slice(0, 3).join("")}
+${arr.slice(3, 6).join("")}
+${arr.slice(6).join("")}
+
+Menunggu @${room.game.currentTurn.split("@")[0]}
+
+Ketik *nyerah* untuk menyerah dan mengakui kekalahan`;
+            if (room.x !== room.o)
+              await ichi.sendMessage(room.x, {
+                text: str,
+                mentions: parseMention(str),
+              });
+            await ichi.sendMessage(room.o, {
+              text: str,
+              mentions: parseMention(str),
+            });
+          } else {
+            room = {
+              id: "tictactoe-" + +new Date(),
+              x: m.chat,
+              o: "",
+              game: new TicTacToe(m.sender, "o"),
+              state: "WAITING",
+            };
+            if (text) room.name = text;
+            m.reply(
+              "Menunggu partner TicTacToe" +
+                (text
+                  ? ` mengetik command dibawah ini ${prefix}${command}`
+                  : "")
+            );
+            this.game[room.id] = room;
+          }
+        }
+        break;
+      case "delttc":
+      case "delttt":
+        if (isBanned) return reply(messs.banned);
+        if (!isRegistered) return reply(textRegister);
+        if (!m.isGroup) return m.reply(mess.group);
+        if (!isAdmins && !isOwner) return m.reply(mess.admin);
+        {
+          this.game = this.game ? this.game : {};
+          try {
+            if (this.game) {
+              delete this.game;
+              ichi.sendText(m.chat, `Berhasil delete session TicTacToe`, m);
+            } else if (!this.game) {
+              m.reply(`Session TicTacToe🎮 tidak ada`);
+            } else return "?";
+          } catch (e) {
+            m.reply("rusak");
+          }
+        }
+        break;
+      case "vote":
+        {
+          if (isBanned) return reply(messs.banned);
+          if (!isRegistered) return reply(textRegister);
+          if (!m.isGroup) return m.reply(mess.group);
+          if (m.chat in vote)
+            return reply(
+              `_Masih ada vote di chat ini!_\n\n*${prefix}hapusvote* - untuk menghapus vote`
+            );
+          if (!text)
+            return reply(
+              `Masukkan Alasan Melakukan Vote, Contoh: *${
+                prefix + command
+              } Owner Ganteng*`
+            );
+          m.reply(`Vote dimulai!`);
+          vote[m.chat] = [q, [], []];
+          await sleep(1000);
+          upvote = vote[m.chat][1];
+          devote = vote[m.chat][2];
+          teks_vote = `*「 VOTE 」*
+
+*Alasan:* ${vote[m.chat][0]}
+
+┌〔 UPVOTE 〕
+│ 
+├ Total: ${vote[m.chat][1].length}
+│
+│ 
+└────
+
+┌〔 DEVOTE 〕
+│ 
+├ Total: ${vote[m.chat][2].length}
+│
+│ 
+└────
+
+*${prefix}upvote* - Untuk Ya
+*${prefix}devote* - Untuk Tidak
+*${prefix}cekvote* - Untuk Mengecek Vote
+*${prefix}hapusvote* - Untuk Menghapus Vote`;
+          ichi.sendMessage(m.chat, { text: teks_vote });
+        }
+        break;
+      case "upvote":
+        if (isBanned) return reply(messs.banned);
+        if (!isRegistered) return reply(textRegister);
+        if (!m.isGroup) return m.reply(mess.group);
+        {
+          if (!m.isGroup) return mess.group;
+          if (!(m.chat in vote))
+            return reply(
+              `_*tidak ada voting digrup ini!*_\n\n*${prefix}vote* - untuk memulai vote`
+            );
+          isVote = vote[m.chat][1].concat(vote[m.chat][2]);
+          wasVote = isVote.includes(m.sender);
+          if (wasVote) return reply("Kamu Sudah Vote");
+          vote[m.chat][1].push(m.sender);
+          menvote = vote[m.chat][1].concat(vote[m.chat][2]);
+          teks_vote = `*「 VOTE 」*
+
+*Alasan:* ${vote[m.chat][0]}
+
+┌〔 UPVOTE 〕
+│ 
+├ Total: ${vote[m.chat][1].length}
+${vote[m.chat][1].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join("\n")}
+│ 
+└────
+
+┌〔 DEVOTE 〕
+│ 
+├ Total: ${vote[m.chat][2].length}
+${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join("\n")}
+│ 
+└────
+
+*${prefix}upvote* - Untuk Ya
+*${prefix}devote* - Untuk Tidak
+*${prefix}cekvote* - Untuk Mengecek Vote
+*${prefix}hapusvote* - Untuk Menghapus Vote`;
+          ichi.sendMessage(m.chat, { text: teks_vote, mentions: menvote });
+        }
+        break;
+      case "devote":
+        if (isBanned) return reply(messs.banned);
+        if (!isRegistered) return reply(textRegister);
+        if (!m.isGroup) return m.reply(mess.group);
+        {
+          if (!m.isGroup) return mess.group;
+          if (!(m.chat in vote))
+            return reply(
+              `_*tidak ada voting digrup ini!*_\n\n*${prefix}vote* - untuk memulai vote`
+            );
+          isVote = vote[m.chat][1].concat(vote[m.chat][2]);
+          wasVote = isVote.includes(m.sender);
+          if (wasVote) return reply("Kamu Sudah Vote");
+          vote[m.chat][2].push(m.sender);
+          menvote = vote[m.chat][1].concat(vote[m.chat][2]);
+          teks_vote = `*「 VOTE 」*
+
+*Alasan:* ${vote[m.chat][0]}
+
+┌〔 UPVOTE 〕
+│ 
+├ Total: ${vote[m.chat][1].length}
+${vote[m.chat][1].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join("\n")}
+│ 
+└────
+
+┌〔 DEVOTE 〕
+│ 
+├ Total: ${vote[m.chat][2].length}
+${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join("\n")}
+│ 
+└────
+
+*${prefix}upvote* - Untuk Ya
+*${prefix}devote* - Untuk Tidak
+*${prefix}cekvote* - Untuk Mengecek Vote
+*${prefix}hapusvote* - Untuk Menghapus Vote`;
+          ichi.sendMessage(m.chat, { text: teks_vote, mentions: menvote });
+        }
+        break;
+
+      case "cekvote":
+        if (isBanned) return reply(messs.banned);
+        if (!isRegistered) return reply(textRegister);
+        if (!m.isGroup) return m.reply(mess.group);
+        {
+          if (!m.isGroup) return mess.group;
+          if (!(m.chat in vote))
+            return reply(
+              `_*tidak ada voting digrup ini!*_\n\n*${prefix}vote* - untuk memulai vote`
+            );
+          teks_vote = `*「 VOTE 」*
+
+*Alasan:* ${vote[m.chat][0]}
+
+┌〔 UPVOTE 〕
+│ 
+├ Total: ${upvote.length}
+${vote[m.chat][1].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join("\n")}
+│ 
+└────
+
+┌〔 DEVOTE 〕
+│ 
+├ Total: ${devote.length}
+${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join("\n")}
+│ 
+└────
+
+*${prefix}upvote* - Untuk Ya
+*${prefix}devote* - Untuk Tidak
+*${prefix}cekvote* - Untuk Mengecek Vote
+*${prefix}hapusvote* - Untuk Menghapus Vote`;
+          reply(teks_vote);
+        }
+        break;
+      case "deletevote":
+      case "delvote":
+      case "hapusvote":
+        if (isBanned) return reply(messs.banned);
+        if (!isRegistered) return reply(textRegister);
+        if (!m.isGroup) return m.reply(mess.group);
+        if (!isAdmins) return m.reply(mess.admin);
+        {
+          if (!m.isGroup) return mess.group;
+          if (!(m.chat in vote))
+            return reply(
+              `_*tidak ada voting digrup ini!*_\n\n*${prefix}vote* - untuk memulai vote`
+            );
+          delete vote[m.chat];
+          m.reply("Berhasil Menghapus Sesi Vote Di Grup Ini");
+        }
+        break;
+      case "suitpvp":
+      case "suit":
+        if (isBanned) return reply(messs.banned);
+        if (!isRegistered) return reply(textRegister);
+        if (!m.isGroup) return m.reply(mess.group);
+        {
+          this.suit = this.suit ? this.suit : {};
+          let poin = 10;
+          let poin_lose = 10;
+          let timeout = 60000;
+          if (
+            Object.values(this.suit).find(
+              (roof) =>
+                roof.id.startsWith("suit") &&
+                [roof.p, roof.p2].includes(m.sender)
+            )
+          )
+            m.reply(`Selesaikan suit mu yang sebelumnya`);
+          if (
+            m.mentionedJid[0] ===
+            ichi.user.id.split(":")[0] + "@s.whatsapp.net"
+          )
+            return reply(
+              `Tidak dapat bermain suit dengan BOT, silahkan tag member lain`
+            );
+          if (m.mentionedJid[0] === m.sender)
+            return m.reply(`Tidak bisa bermain dengan diri sendiri !`);
+          if (!m.mentionedJid[0])
+            return m.reply(
+              `_Siapa yang ingin kamu tantang?_\nTag orangnya..\n\nContoh : ${prefix}suit @${
+                ichi.user.id.split(":")[0]
+              }`,
+              m.chat,
+              {
+                mentions: [ichi.user.id.split(":")[0] + "@s.whatsapp.net"],
+              }
+            );
+          if (
+            Object.values(this.suit).find(
+              (roof) =>
+                roof.id.startsWith("suit") &&
+                [roof.p, roof.p2].includes(m.mentionedJid[0])
+            )
+          )
+            return `Orang yang kamu tantang sedang bermain suit bersama orang lain :(`;
+          let id = "suit_" + new Date() * 1;
+          let caption = `_*SUIT PvP*_
+
+@${m.sender.split`@`[0]} menantang @${
+            m.mentionedJid[0].split`@`[0]
+          } untuk bermain suit.
+
+Silahkan @${
+            m.mentionedJid[0].split`@`[0]
+          } untuk ketik *terima/tolak*.\nBatas waktu *terima/tolak* hanya 1 menit dari sekarang...`;
+          this.suit[id] = {
+            chat: await ichi.sendMessage(m.chat, {
+              text: caption,
+              mentions: parseMention(caption),
+            }),
+            id: id,
+            p: m.sender,
+            p2: m.mentionedJid[0],
+            status: "wait",
+            waktu: setTimeout(() => {
+              if (this.suit[id]) ichi.sendText(m.chat, `_Waktu suit habis_`, m);
+              delete this.suit[id];
+            }, 60000),
+            poin,
+            poin_lose,
+            timeout,
+          };
+        }
         break;
       case "bot":
         reply("Apa? mau pakai bot? caranya kirim .menu");
